@@ -1,4 +1,4 @@
 package com.github.retrooper.bigdata.model;
 
-public interface Model {
+public class TestingModel implements Model {
 }
