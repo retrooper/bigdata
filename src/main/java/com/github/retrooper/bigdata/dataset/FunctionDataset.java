@@ -3,7 +3,7 @@ package com.github.retrooper.bigdata.dataset;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class FunctionDataset<T extends Number, Z extends Number> extends Dataset<T, Z> {
     public FunctionDataset(T[] input, Z[] output) {
@@ -16,10 +16,10 @@ public class FunctionDataset<T extends Number, Z extends Number> extends Dataset
         return getData().keySet().size();
     }
 
-    public void iteratePoints(Consumer<Point> consumer) {
+    public void iteratePoints(Predicate<Point> consumer) {
         for (Map.Entry<T, Z> entry : getData().entrySet()) {
             Point point = new Point(entry.getKey().doubleValue(), entry.getValue().doubleValue());
-            consumer.accept(point);
+            if (!consumer.test(point)) break;
         }
     }
 }
