@@ -18,20 +18,16 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
     }
 
     private static void iteration(int k, List<Cluster> clusters, FunctionDataset<Double, Double> function) {
-        function.iteratePoints(new Predicate<Point>() {
-            @Override
-            public boolean test(Point point) {
-                // Find cluster with center closest to point
-                Cluster cluster = Cluster.findCluster(k, clusters, point);
+        function.iteratePoints(point -> {
+            // Find cluster with center closest to point
+            Cluster cluster = Cluster.findCluster(k, clusters, point);
 
-                // Add the point to the best fitting cluster.
-                cluster.points().add(point);
-                return true;
-            }
+            // Add the point to the best fitting cluster.
+            cluster.points().add(point);
+            return true;
         });
 
         // Iteration 2
-
         for (Cluster cluster : clusters) {
             int n = cluster.points().size();
             double xSum = 0;
@@ -50,13 +46,10 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
     public static KMeansClusteringAlgorithm build(int k, FunctionDataset<Double, Double> function) {
         List<Cluster> clusters = new ArrayList<>(k);
 
-        function.iteratePoints(new Predicate<Point>() {
-            @Override
-            public boolean test(Point point) {
-                clusters.add(new Cluster(point));
-                // Condition to continue iterating
-                return clusters.size() != k;
-            }
+        function.iteratePoints(point -> {
+            clusters.add(new Cluster(point));
+            // Condition to continue iterating
+            return clusters.size() != k;
         });
 
 
