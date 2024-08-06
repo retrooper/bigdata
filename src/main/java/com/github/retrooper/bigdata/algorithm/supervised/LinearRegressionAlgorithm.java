@@ -5,7 +5,7 @@ import com.github.retrooper.bigdata.dataset.FunctionDataset;
 
 import java.util.Map;
 
-public class LinearRegressionAlgorithm implements LearningAlgorithm {
+public class LinearRegressionAlgorithm implements LearningAlgorithm<Double> {
     private final double r;
     private final double gradient;
     private final double height;
@@ -47,7 +47,7 @@ public class LinearRegressionAlgorithm implements LearningAlgorithm {
     }
 
     @Override
-    public double predict(double x) {
+    public double predict(Double x) {
         return gradient() * x + height();
     }
 

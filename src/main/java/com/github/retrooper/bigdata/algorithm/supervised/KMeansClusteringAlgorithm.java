@@ -6,40 +6,28 @@ import com.github.retrooper.bigdata.util.Point;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class KMeansClusteringAlgorithm implements LearningAlgorithm {
+public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
+    private final int k;
     private final List<Cluster> clusters;
 
-    private KMeansClusteringAlgorithm(List<Cluster> clusters) {
+    private KMeansClusteringAlgorithm(int k, List<Cluster> clusters) {
+        this.k = k;
         this.clusters = clusters;
     }
 
-    private static void iteration(int k, List<Cluster> clusters, FunctionDataset<Integer, Integer> function) {
+    private static void iteration(int k, List<Cluster> clusters, FunctionDataset<Double, Double> function) {
         function.iteratePoints(new Predicate<Point>() {
             @Override
             public boolean test(Point point) {
-                int bestClusterIndex = 0;
-                double lowestDistance = -1;
-                for (int i = 0; i < k; i++) {
-                    Cluster cluster = clusters.get(i);
-                    double xDiff = point.x() - cluster.center().x();
-                    double yDiff = point.y() - cluster.center().y();
-                    double distanceSquared = xDiff * xDiff + yDiff * yDiff;
-
-                    double dist = Math.sqrt(distanceSquared);
-                    if (lowestDistance == -1 || dist < lowestDistance) {
-                        bestClusterIndex = i;
-                        lowestDistance = dist;
-                    }
-                }
+                // Find cluster with center closest to point
+                Cluster cluster = Cluster.findCluster(k, clusters, point);
 
                 // Add the point to the best fitting cluster.
-                clusters.get(bestClusterIndex).points().add(point);
+                cluster.points().add(point);
                 return true;
-            };
+            }
         });
 
         // Iteration 2
@@ -59,7 +47,7 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm {
         }
     }
 
-    public static KMeansClusteringAlgorithm build(int k, FunctionDataset<Integer, Integer> function) {
+    public static KMeansClusteringAlgorithm build(int k, FunctionDataset<Double, Double> function) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(new Predicate<Point>() {
@@ -75,12 +63,12 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm {
         iteration(k, clusters, function);
         iteration(k, clusters, function);
 
-        return new KMeansClusteringAlgorithm(clusters);
+        return new KMeansClusteringAlgorithm(k, clusters);
     }
 
     @Override
-    public double predict(double x) {
-        return 0;
+    public double predict(Point point) {
+        return Cluster.findClusterIndex(k, clusters(), point);
     }
 
     public List<Cluster> clusters() {
@@ -93,6 +81,29 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm {
 
         public Cluster(Point center) {
             this.center = center;
+        }
+
+        public static int findClusterIndex(int k, List<Cluster> clusters, Point point) {
+            int bestClusterIndex = 0;
+            double lowestDistance = -1;
+            for (int i = 0; i < k; i++) {
+                Cluster cluster = clusters.get(i);
+                double xDiff = point.x() - cluster.center().x();
+                double yDiff = point.y() - cluster.center().y();
+                double distanceSquared = xDiff * xDiff + yDiff * yDiff;
+
+                double dist = Math.sqrt(distanceSquared);
+                if (lowestDistance == -1 || dist <= lowestDistance) {
+                    bestClusterIndex = i;
+                    lowestDistance = dist;
+                }
+            }
+            return bestClusterIndex;
+        }
+
+
+        public static Cluster findCluster(int k, List<Cluster> clusters, Point point) {
+            return clusters.get(findClusterIndex(k, clusters, point));
         }
 
         public Point center() {

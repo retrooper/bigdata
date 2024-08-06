@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.function.Supplier;
 
-public class Main {
+public class LinearRegressionMain {
     public static void main(String[] args) {
         double[] input = new double[]{
                 -1, 0, 1, 2
@@ -22,9 +22,9 @@ public class Main {
 
         FunctionDataset<Double, Double> function = new FunctionDataset<>(Arrays.stream(input).boxed().toArray(Double[]::new),
                 Arrays.stream(output).boxed().toArray(Double[]::new));
-        Supplier<LearningAlgorithm> dataSupplier = () -> LinearRegressionAlgorithm.build(function);
-        SupervisedTrainingModel trainingModel = new SupervisedTrainingModel();
-        ProductionModel trainedModel = trainingModel.train(dataSupplier);
+        Supplier<LearningAlgorithm<Double>> dataSupplier = () -> LinearRegressionAlgorithm.build(function);
+        SupervisedTrainingModel<Double> trainingModel = new SupervisedTrainingModel<>();
+        ProductionModel<Double> trainedModel = trainingModel.train(dataSupplier);
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
