@@ -83,6 +83,10 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm {
         return 0;
     }
 
+    public List<Cluster> clusters() {
+        return clusters;
+    }
+
     public static class Cluster {
         private Point center;
         private final List<Point> points = new ArrayList<>();
