@@ -1,5 +1,6 @@
-package com.github.retrooper.bigdata.algorithm;
+package com.github.retrooper.bigdata.algorithm.supervised;
 
+import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.dataset.FunctionDataset;
 
 import java.util.Map;

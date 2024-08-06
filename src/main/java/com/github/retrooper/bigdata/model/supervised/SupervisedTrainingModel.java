@@ -1,11 +1,13 @@
-package com.github.retrooper.bigdata.model;
+package com.github.retrooper.bigdata.model.supervised;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
+import com.github.retrooper.bigdata.model.Model;
+import com.github.retrooper.bigdata.model.ProductionModel;
 
 import java.util.function.Supplier;
 
-public class TrainingModel implements Model {
-    public TrainingModel() {
+public class SupervisedTrainingModel implements Model {
+    public SupervisedTrainingModel() {
     }
 
     public ProductionModel train(Supplier<LearningAlgorithm> supplier) {

@@ -1,16 +1,14 @@
 package com.github.retrooper;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
-import com.github.retrooper.bigdata.algorithm.LinearRegressionAlgorithm;
+import com.github.retrooper.bigdata.algorithm.supervised.LinearRegressionAlgorithm;
 import com.github.retrooper.bigdata.dataset.FunctionDataset;
-import com.github.retrooper.bigdata.model.Model;
 import com.github.retrooper.bigdata.model.ProductionModel;
-import com.github.retrooper.bigdata.model.TrainingModel;
+import com.github.retrooper.bigdata.model.supervised.SupervisedTrainingModel;
 
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args) {
@@ -22,12 +20,10 @@ public class Main {
                 -2, 0, 2, 4
         };
 
-        Double[] doubles = Arrays.stream(input).boxed().toArray(Double[]::new);
-
         FunctionDataset<Double, Double> function = new FunctionDataset<>(Arrays.stream(input).boxed().toArray(Double[]::new),
                 Arrays.stream(output).boxed().toArray(Double[]::new));
         Supplier<LearningAlgorithm> dataSupplier = () -> LinearRegressionAlgorithm.build(function);
-        TrainingModel trainingModel = new TrainingModel();
+        SupervisedTrainingModel trainingModel = new SupervisedTrainingModel();
         ProductionModel trainedModel = trainingModel.train(dataSupplier);
 
         Scanner scanner = new Scanner(System.in);
