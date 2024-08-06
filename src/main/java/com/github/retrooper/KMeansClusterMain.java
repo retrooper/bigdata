@@ -22,13 +22,9 @@ public class KMeansClusterMain {
             output[i] = 0;
         }
 
-        for (int i = 0; i < input.length; i++) {
-            input[i] = input[i] * 100;
-        }
-
         FunctionDataset<Double, Double> function = new FunctionDataset<>(Arrays.stream(input).boxed().toArray(Double[]::new),
                 Arrays.stream(output).boxed().toArray(Double[]::new));
-        Supplier<LearningAlgorithm<Point>> dataSupplier = () -> KMeansClusteringAlgorithm.build(3, function);
+        Supplier<LearningAlgorithm<Point>> dataSupplier = () -> KMeansClusteringAlgorithm.build(2, function);
         SupervisedTrainingModel<Point> trainingModel = new SupervisedTrainingModel<Point>();
         ProductionModel<Point> trainedModel = trainingModel.train(dataSupplier);
 
@@ -38,7 +34,7 @@ public class KMeansClusterMain {
             String line = scanner.nextLine();
             try {
                 double x = Double.parseDouble(line);
-                System.out.println("X: " + x + " in cluster: " + trainedModel.predict(new Point(x * 100, 0)));
+                System.out.println("X: " + x + " in cluster: " + trainedModel.predict(new Point(x, 0)));
             } catch (Exception exception) {
                 break;
             }
