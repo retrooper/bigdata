@@ -1,4 +1,4 @@
 package com.github.retrooper.bigdata.model;
 
-public class TestingModel implements Model {
+public abstract class TestingModel extends ProductionModel {
 }
