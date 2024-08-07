@@ -30,6 +30,20 @@ public class FunctionDatasetNDimensional implements Dataset {
         }
     }
 
+    public FunctionDatasetNDimensional(double[][] input) {
+        Double[][] inputBoxed = new Double[input.length][];
+        for (int i = 0; i < input.length; i++) {
+            inputBoxed[i] = Arrays.stream(input[i]).boxed().toArray(Double[]::new);
+        }
+
+        Double[] out = new Double[] {0.0};
+
+        for (int i = 0; i < input.length; i++) {
+            getData().put(inputBoxed[i], out);
+        }
+    }
+
+
     @Override
     public int dataPoints() {
         return getData().keySet().size();

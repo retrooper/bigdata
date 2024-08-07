@@ -3,12 +3,10 @@ package com.github.retrooper.bigdata.image;
 import io.github.kamilszewc.opencv.OpenCV;
 import io.github.kamilszewc.opencv.exception.SystemNotSupportedException;
 import org.jetbrains.annotations.Nullable;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
+import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.HOGDescriptor;
 
 import java.io.IOException;
 import java.util.function.Supplier;
@@ -49,16 +47,12 @@ public class Image {
             }
             Mat srcGray = new Mat();
             Imgproc.cvtColor(src, srcGray, Imgproc.COLOR_BGR2GRAY);
-            Mat dst = new Mat();
-            Mat dstNorm = new Mat();
-            Mat dstNormScaled = new Mat();
 
-            int blockSize = 2;
-            int apertureSize = 3;
-            double k = 0.04;
+            HOGDescriptor descriptor = new HOGDescriptor();
+            MatOfFloat features = new MatOfFloat();
+            descriptor.compute(srcGray, features);
 
-            Imgproc.cornerHarris(srcGray, dst, blockSize, apertureSize, k);
-
+            /*
             /// Normalizing
             Core.normalize(dst, dstNorm, 0, 255, Core.NORM_MINMAX);
 
@@ -72,17 +66,19 @@ public class Image {
                         Imgproc.circle(dstNormScaled, new Point(j, i), 5, new Scalar(0), 2, 8, 0);
                     }
                 }
-            }
+            }*/
+
+
 
             // Don't save the processed image!
-            //Imgcodecs.imwrite(path + "_PROCESSED" + ".jpg", dstNormScaled);
+            //Imgcodecs.imwrite(path + "_PROCESSED" + ".jpg", features.t());
 
-            float[] dstScaledData = new float[(int) (dstNorm.total() * dstNorm.channels())];
-            dstNorm.get(0, 0, dstScaledData);
+            float[] dstScaledData = features.toArray();
+
 
             double[] data = new double[dstScaledData.length];
             for (int i = 0; i < dstScaledData.length; i++) {
-                data[i] = dstScaledData[i] / 100.0D;
+                data[i] = dstScaledData[i];
             }
 
             return new ImageFeatures(data);
