@@ -5,7 +5,6 @@ import com.github.retrooper.bigdata.dataset.FunctionDataset;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,22 +27,14 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
             return true;
         });
 
-        // Iteration 2
-
-        for (Cluster c : clusters) {
-            //System.out.println("CLUSTER; CENTROID: (" + c.center.x() + "|" + c.center.y() + ")" + ", points ->");
-            for (Point p : c.points) {
-                //System.out.println("Point: (" + p.x() + "|" + p.y() + ")");
-            }
-        }
         for (Cluster cluster : clusters) {
             int n = cluster.points().size();
             double xSum = 0;
             double ySum = 0;
             for (int i = 0; i < n; i++) {
                 Point point = cluster.points().get(i);
-                xSum = point.x();
-                ySum = point.y();
+                xSum += point.x();
+                ySum += point.y();
             }
 
             // New center is the mean of all points in that particular cluster
@@ -64,13 +55,11 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
             for (Cluster c : clusters) {
                 c.points().clear();
             }
-            //System.out.println("ITERATION INDEX: " + i + "------");
             iteration(k, clusters, function);
-            //System.out.println("ITERATION OVER------");
         }
 
         // Order the cluster by mean
-        //Collections.sort(clusters);
+        Collections.sort(clusters);
 
         return new KMeansClusteringAlgorithm(k, clusters);
     }
