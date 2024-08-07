@@ -10,4 +10,10 @@ public class ImageFeatures {
     public double[] getData() {
         return data;
     }
+
+    public double[] extractData(int limit) {
+        double[] array = new double[limit];
+        System.arraycopy(getData(), 0, array, 0, limit);
+        return array;
+    }
 }

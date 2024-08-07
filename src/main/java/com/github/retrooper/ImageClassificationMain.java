@@ -6,6 +6,7 @@ import com.github.retrooper.bigdata.dataset.FunctionDatasetNDimensional;
 import com.github.retrooper.bigdata.image.Image;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
+import com.github.retrooper.bigdata.util.NDimensionalPoint;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.io.File;
@@ -28,7 +29,6 @@ public class ImageClassificationMain {
         int maxFeatures = Integer.MAX_VALUE;
         for (Image t : trainingImages) {
             double[] data = t.features().get().getData();
-            System.out.println("feature count: " + data.length);
             if (data.length < maxFeatures) {
                 maxFeatures = data.length;
             }
@@ -49,10 +49,25 @@ public class ImageClassificationMain {
             outputData[i] = new Double[]{0.0};
         }
 
-        /*FunctionDatasetNDimensional<Double, Double> function = new FunctionDatasetNDimensional<>(inputData, outputData);
-        Supplier<LearningAlgorithm<Point>> dataSupplier = () -> KMeansClusteringAlgorithm.build(3, function);
-        TrainingModel<Point> trainingModel = new TrainingModel<>();
-        ProductionModel<Point> trainedModel = trainingModel.train(dataSupplier);*/
+        FunctionDatasetNDimensional function = new FunctionDatasetNDimensional(inputData, outputData);
+        Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier = () -> KMeansClusteringAlgorithm.build(2, function);
+        TrainingModel<NDimensionalPoint> trainingModel = new TrainingModel<>();
+        ProductionModel<NDimensionalPoint> trainedModel = trainingModel.train(dataSupplier);
+
+        //Test with random image: in testing
+        Image[] testing = new Image[]{new Image("src/main/resources/testing/smart cat.jpg"),
+                new Image("src/main/resources/testing/testing dog0.jpg"),
+                new Image("src/main/resources/testing/testing dog1.jpg"),
+                new Image("src/main/resources/testing/testing dog2.jpg"),
+                new Image("src/main/resources/testing/weird cat.jpg")
+        };
+
+        for (Image test : testing) {
+            double[] data = test.features().get().extractData(maxFeatures);
+            NDimensionalPoint point = new NDimensionalPoint(data);
+
+            System.out.println("image name: " + test.path() + ", cluster: " + trainedModel.predict(point));
+        }
 
     }
 }
