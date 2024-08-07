@@ -1,37 +1,45 @@
 package com.github.retrooper.bigdata.util;
 
-public class NDimensionalPoint<T extends Number> {
-    private final T[] coordinates;
-    public NDimensionalPoint(T[] coordinates) {
+import java.util.Arrays;
+import java.util.stream.Stream;
+
+public class NDimensionalPoint {
+    private final double[] coordinates;
+    public NDimensionalPoint(double[] coordinates) {
         this.coordinates = coordinates;
     }
 
-    public double distanceSquared(NDimensionalPoint<T> point) {
+    public NDimensionalPoint(Double[] coordinates) {
+        this(Stream.of(coordinates).mapToDouble(Double::doubleValue).toArray());
+    }
+
+    public double distanceSquared(NDimensionalPoint point) {
         double distanceSquared = 0;
         for (int i = 0; i < coordinates.length; i++) {
-            double difference = coordinates[i].doubleValue() - point.coordinates[i].doubleValue();
+            double difference = coordinates[i] - point.coordinates[i];
             distanceSquared += difference * difference;
         }
         return distanceSquared;
     }
 
-    public double distance(NDimensionalPoint<T> point) {
+    public double distance(NDimensionalPoint point) {
         return Math.sqrt(distanceSquared(point));
     }
 
     public double getCoordinatesSum() {
         double sum = 0;
-        for (T c : coordinates) {
-            sum += c.doubleValue();
+        for (double c : coordinates) {
+            sum += c;
         }
         return sum;
     }
+
     @Override
-    public NDimensionalPoint<T> clone() {
-        return new NDimensionalPoint<T>(coordinates());
+    public NDimensionalPoint clone() {
+        return new NDimensionalPoint(coordinates());
     }
 
-    public T[] coordinates() {
+    public double[] coordinates() {
         return coordinates;
     }
 

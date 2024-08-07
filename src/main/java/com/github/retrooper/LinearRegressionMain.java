@@ -20,8 +20,7 @@ public class LinearRegressionMain {
                 -2, 0, 2, 4
         };
 
-        FunctionDataset2D<Double, Double> function = new FunctionDataset2D<>(Arrays.stream(input).boxed().toArray(Double[]::new),
-                Arrays.stream(output).boxed().toArray(Double[]::new));
+        FunctionDataset2D function = new FunctionDataset2D(input, output);
         Supplier<LearningAlgorithm<Double>> dataSupplier = () -> LinearRegressionAlgorithm.build(function);
         TrainingModel<Double> trainingModel = new TrainingModel<>();
         ProductionModel<Double> trainedModel = trainingModel.train(dataSupplier);

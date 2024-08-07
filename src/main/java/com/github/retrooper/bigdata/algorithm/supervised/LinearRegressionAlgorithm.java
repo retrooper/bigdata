@@ -16,7 +16,7 @@ public class LinearRegressionAlgorithm implements LearningAlgorithm<Double> {
         this.height = height;
     }
 
-    public static LinearRegressionAlgorithm build(FunctionDataset2D<Double, Double> function) {
+    public static LinearRegressionAlgorithm build(FunctionDataset2D function) {
         double xSum = 0, ySum = 0, xSqSum = 0, ySqSum = 0, xySum = 0;
         for (Map.Entry<Double, Double> entry : function.getData().entrySet()) {
             double x = entry.getKey();

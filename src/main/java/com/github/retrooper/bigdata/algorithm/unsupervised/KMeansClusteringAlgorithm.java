@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> implements LearningAlgorithm<Z> {
+public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements LearningAlgorithm<Z> {
     private final int k;
     private final List<Cluster> clusters;
 
@@ -22,7 +22,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
         this.clusters = clusters;
     }
 
-    private static void iteration(int k, List<Cluster> clusters, FunctionDataset2D<Double, Double> function) {
+    private static void iteration(int k, List<Cluster> clusters, FunctionDataset2D function) {
         function.iteratePoints(point -> {
             // Find cluster with center closest to point
             Cluster cluster = Cluster.findCluster(k, clusters, point);
@@ -39,7 +39,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
             int coordsLength = -1;
             // Assume N coordinates
             for (int i = 0; i < n; i++) {
-                NDimensionalPoint<Double> point = cluster.points().get(i);
+                NDimensionalPoint point = cluster.points().get(i);
                 if (coordsLength == -1) {
                     coordsLength = point.coordinates().length;
                     sums = new double[coordsLength];
@@ -56,14 +56,14 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
                 means[i] = sums[i] / n;
             }
 
-            cluster.center(new NDimensionalPoint<>(Arrays.stream(means).boxed().toArray(Double[]::new)));
+            cluster.center(new NDimensionalPoint(means));
 
             // New center is the mean of all points in that particular cluster
             //cluster.center(new Point(xSum / n, ySum / n));
         }
     }
 
-    public static KMeansClusteringAlgorithm<Point> build(int k, FunctionDataset2D<Double, Double> function) {
+    public static KMeansClusteringAlgorithm<Point> build(int k, FunctionDataset2D function) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(point -> {
@@ -85,7 +85,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
         return new KMeansClusteringAlgorithm<>(k, clusters);
     }
 
-    public static KMeansClusteringAlgorithm<NDimensionalPoint<Double>> build(int k, FunctionDatasetNDimensional<Double, Double> function) {
+    public static KMeansClusteringAlgorithm<NDimensionalPoint> build(int k, FunctionDatasetNDimensional function) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(point -> {
@@ -98,7 +98,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
             for (Cluster c : clusters) {
                 c.points().clear();
             }
-            //iteration(k, clusters, function);
+            iteration(k, clusters, function);
         }
 
         // Order the cluster by mean
@@ -118,14 +118,14 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
     }
 
     public static class Cluster implements Comparable<Cluster> {
-        private NDimensionalPoint<Double> center;
-        private final List<NDimensionalPoint<Double>> points = new ArrayList<>();
+        private NDimensionalPoint center;
+        private final List<NDimensionalPoint> points = new ArrayList<>();
 
-        public Cluster(NDimensionalPoint<Double> center) {
+        public Cluster(NDimensionalPoint center) {
             this.center = center;
         }
 
-        public static int findClusterIndex(int k, List<Cluster> clusters, NDimensionalPoint<Double> point) {
+        public static int findClusterIndex(int k, List<Cluster> clusters, NDimensionalPoint point) {
             int bestClusterIndex = 0;
             double lowestDistance = -1;
             for (int i = 0; i < k; i++) {
@@ -140,19 +140,19 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
         }
 
 
-        public static Cluster findCluster(int k, List<Cluster> clusters, NDimensionalPoint<Double> point) {
+        public static Cluster findCluster(int k, List<Cluster> clusters, NDimensionalPoint point) {
             return clusters.get(findClusterIndex(k, clusters, point));
         }
 
         @Override
         public int compareTo(Cluster o) {
             double sum = 0;
-            for (NDimensionalPoint<Double> p : points()) {
+            for (NDimensionalPoint p : points()) {
                 sum += p.getCoordinatesSum();
             }
 
             double otherSum = 0;
-            for (NDimensionalPoint<Double> p : o.points()) {
+            for (NDimensionalPoint p : o.points()) {
                 otherSum += p.getCoordinatesSum();
             }
 
@@ -163,8 +163,8 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
 
         @Override
         public Cluster clone() {
-            List<NDimensionalPoint<Double>> newPoints = new ArrayList<>();
-            for (NDimensionalPoint<Double> p : points()) {
+            List<NDimensionalPoint> newPoints = new ArrayList<>();
+            for (NDimensionalPoint p : points()) {
                 newPoints.add(p.clone());
             }
             Cluster cluster = new Cluster(center.clone());
@@ -172,15 +172,15 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
             return cluster;
         }
 
-        public NDimensionalPoint<Double> center() {
+        public NDimensionalPoint center() {
             return center;
         }
 
-        public void center(NDimensionalPoint<Double> center) {
+        public void center(NDimensionalPoint center) {
             this.center = center;
         }
 
-        public List<NDimensionalPoint<Double>> points() {
+        public List<NDimensionalPoint> points() {
             return points;
         }
     }
