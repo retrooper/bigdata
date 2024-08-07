@@ -2,7 +2,7 @@ package com.github.retrooper;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.supervised.LinearRegressionAlgorithm;
-import com.github.retrooper.bigdata.dataset.FunctionDataset;
+import com.github.retrooper.bigdata.dataset.FunctionDataset2D;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
 
@@ -20,7 +20,7 @@ public class LinearRegressionMain {
                 -2, 0, 2, 4
         };
 
-        FunctionDataset<Double, Double> function = new FunctionDataset<>(Arrays.stream(input).boxed().toArray(Double[]::new),
+        FunctionDataset2D<Double, Double> function = new FunctionDataset2D<>(Arrays.stream(input).boxed().toArray(Double[]::new),
                 Arrays.stream(output).boxed().toArray(Double[]::new));
         Supplier<LearningAlgorithm<Double>> dataSupplier = () -> LinearRegressionAlgorithm.build(function);
         TrainingModel<Double> trainingModel = new TrainingModel<>();

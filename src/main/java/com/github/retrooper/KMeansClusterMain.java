@@ -2,7 +2,7 @@ package com.github.retrooper;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.unsupervised.KMeansClusteringAlgorithm;
-import com.github.retrooper.bigdata.dataset.FunctionDataset;
+import com.github.retrooper.bigdata.dataset.FunctionDataset2D;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
 import com.github.retrooper.bigdata.util.Point;
@@ -22,7 +22,7 @@ public class KMeansClusterMain {
             output[i] = 0;
         }
 
-        FunctionDataset<Double, Double> function = new FunctionDataset<>(Arrays.stream(input).boxed().toArray(Double[]::new),
+        FunctionDataset2D<Double, Double> function = new FunctionDataset2D<>(Arrays.stream(input).boxed().toArray(Double[]::new),
                 Arrays.stream(output).boxed().toArray(Double[]::new));
         Supplier<LearningAlgorithm<Point>> dataSupplier = () -> KMeansClusteringAlgorithm.build(3, function);
         TrainingModel<Point> trainingModel = new TrainingModel<>();

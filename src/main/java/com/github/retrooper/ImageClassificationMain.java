@@ -1,44 +1,48 @@
 package com.github.retrooper;
 
-import io.github.kamilszewc.opencv.OpenCV;
-import io.github.kamilszewc.opencv.exception.SystemNotSupportedException;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
+import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
+import com.github.retrooper.bigdata.algorithm.unsupervised.KMeansClusteringAlgorithm;
+import com.github.retrooper.bigdata.dataset.FunctionDatasetNDimensional;
+import com.github.retrooper.bigdata.image.Image;
+import com.github.retrooper.bigdata.model.ProductionModel;
+import com.github.retrooper.bigdata.model.TrainingModel;
+import com.github.retrooper.bigdata.util.Point;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class ImageClassificationMain {
     public static void main(String[] args) {
-        try {
-            OpenCV.loadLibrary();
-        } catch (IOException | SystemNotSupportedException e) {
-            throw new RuntimeException(e);
+        File trainingDataDir = new File("src/main/resources/training");
+        File[] files = trainingDataDir.listFiles();
+        if (files == null) throw new IllegalStateException("Failed to find training data");
+        List<Image> trainingImages = new ArrayList<>(files.length);
+        for (File trainingImageFile : files) {
+            trainingImages.add(new Image(trainingImageFile.getPath()));
         }
-        Mat src = Imgcodecs.imread("src/main/resources/dog.jpg");
-        Mat srcGray = new Mat();
-        Imgproc.cvtColor(src, srcGray, Imgproc.COLOR_BGR2GRAY);
-        Mat dst = new Mat();
-        Mat dstNorm = new Mat();
-        Mat dstNormScaled = new Mat();
 
-        int blockSize = 2;
-        int apertureSize = 3;
-        double k = 0.04;
 
-        Imgproc.cornerHarris(srcGray, dst, blockSize, apertureSize, k);
-
-        /// Normalizing
-        Core.normalize(dst, dstNorm, 0, 255, Core.NORM_MINMAX);
-
-        float[] dstNormData = new float[(int) (dstNorm.total() * dstNorm.channels())];
-        dstNorm.get(0, 0, dstNormData);
-        Core.convertScaleAbs(dstNorm, dstNormScaled);
-
-        double[] data = new double[dstNormData.length];
-        for (int i = 0; i < dstNormData.length; i++) {
-            data[i] = dstNormData[i];
+        for (Image t : trainingImages) {
+            System.out.println("feature count: " + t.features().get().getData().length);
         }
+        Double[][] inputData = new Double[trainingImages.size()][];
+
+        for (int i = 0; i < trainingImages.size(); i++) {
+            inputData[i] = Arrays.stream(trainingImages.get(i).features().get().getData()).boxed().toArray(Double[]::new);
+        }
+
+        Double[][] outputData = new Double[inputData.length][];
+        for (int i = 0; i < inputData.length; i++) {
+            outputData[i] = new Double[]{0.0};
+        }
+
+        /*FunctionDatasetNDimensional<Double, Double> function = new FunctionDatasetNDimensional<>(inputData, outputData);
+        Supplier<LearningAlgorithm<Point>> dataSupplier = () -> KMeansClusteringAlgorithm.build(3, function);
+        TrainingModel<Point> trainingModel = new TrainingModel<>();
+        ProductionModel<Point> trainedModel = trainingModel.train(dataSupplier);*/
+
     }
 }
