@@ -1,5 +1,6 @@
 package com.github.retrooper.bigdata.dataset;
 
+import com.github.retrooper.bigdata.util.NDimensionalPoint;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.util.ArrayList;
@@ -9,26 +10,28 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public class FunctionDataset1D implements Dataset {
-    private final List<Double> data = new ArrayList<>();
+    private final List<NDimensionalPoint> data = new ArrayList<>();
     public FunctionDataset1D(Double[] input) {
-        for (Double aDouble : input) {
-            getData().put(aDouble, 0.0);
+        for (double v : input) {
+            getData().add(new NDimensionalPoint(v));
         }
     }
 
     public FunctionDataset1D(double[] input) {
         for (double v : input) {
-            getData().put(v, 0.0);
+            getData().add(new NDimensionalPoint(v));
         }
     }
 
+    @Override
     public int dataPoints() {
         return getData().size();
     }
 
-    public void iteratePoints(Predicate<Double> consumer) {
+    public void iteratePoints(Predicate<NDimensionalPoint> consumer) {
         for (double x : getData()) {
-            if (!consumer.test(x)) break;
+            NDimensionalPoint p = new NDimensionalPoint(x);
+            if (!consumer.test(p)) break;
         }
     }
 

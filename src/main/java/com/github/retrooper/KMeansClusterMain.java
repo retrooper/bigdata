@@ -7,6 +7,7 @@ import com.github.retrooper.bigdata.dataset.FunctionDataset2D;
 import com.github.retrooper.bigdata.dataset.FunctionDatasetNDimensional;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
+import com.github.retrooper.bigdata.util.NDimensionalPoint;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.util.Arrays;
@@ -20,9 +21,9 @@ public class KMeansClusterMain {
         };
 
         FunctionDataset1D function = new FunctionDataset1D(input);
-        Supplier<LearningAlgorithm<Point>> dataSupplier = () -> KMeansClusteringAlgorithm.build(3, function);
-        TrainingModel<Point> trainingModel = new TrainingModel<>();
-        ProductionModel<Point> trainedModel = trainingModel.train(dataSupplier);
+        Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier = () -> KMeansClusteringAlgorithm.build(3, function);
+        TrainingModel<NDimensionalPoint> trainingModel = new TrainingModel<>();
+        ProductionModel<NDimensionalPoint> trainedModel = trainingModel.train(dataSupplier);
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -30,7 +31,7 @@ public class KMeansClusterMain {
             String line = scanner.nextLine();
             try {
                 double x = Double.parseDouble(line);
-                System.out.println("X: " + x + " in cluster: " + trainedModel.predict(new Point(x, 0)));
+                System.out.println("X: " + x + " in cluster: " + trainedModel.predict(new NDimensionalPoint(x)));
             } catch (Exception exception) {
                 break;
             }

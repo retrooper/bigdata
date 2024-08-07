@@ -1,6 +1,8 @@
 package com.github.retrooper.bigdata.algorithm.unsupervised;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
+import com.github.retrooper.bigdata.dataset.Dataset;
+import com.github.retrooper.bigdata.dataset.FunctionDataset1D;
 import com.github.retrooper.bigdata.dataset.FunctionDataset2D;
 import com.github.retrooper.bigdata.dataset.FunctionDatasetNDimensional;
 import com.github.retrooper.bigdata.util.NDimensionalPoint;
@@ -22,7 +24,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
         this.clusters = clusters;
     }
 
-    private static void iteration(int k, List<Cluster> clusters, FunctionDataset2D function) {
+    private static void iteration(int k, List<Cluster> clusters, Dataset function) {
         function.iteratePoints(point -> {
             // Find cluster with center closest to point
             Cluster cluster = Cluster.findCluster(k, clusters, point);
@@ -34,6 +36,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
 
         for (Cluster cluster : clusters) {
             int n = cluster.points().size();
+            System.out.println("N: " + n);
             double[] sums = new double[0];
 
             int coordsLength = -1;
@@ -43,6 +46,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
                 if (coordsLength == -1) {
                     coordsLength = point.coordinates().length;
                     sums = new double[coordsLength];
+                    System.out.println("coords len: " + coordsLength);
                 }
                 for (int j = 0; j < point.coordinates().length; j++) {
                     double coord = point.coordinates()[j];
@@ -58,12 +62,42 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
 
             cluster.center(new NDimensionalPoint(means));
 
+            System.out.println("NEW CLUSTER CENTER: "+ cluster.center.coordinates()[0]);
+            System.out.println("CLUSTER POINTS -: ");
+            for (NDimensionalPoint v : cluster.points){
+                System.out.println("POINTS : " + v.coordinates()[0]);
+            }
+            System.out.println("-------");
+
             // New center is the mean of all points in that particular cluster
             //cluster.center(new Point(xSum / n, ySum / n));
         }
     }
 
-    public static KMeansClusteringAlgorithm<Point> build(int k, FunctionDataset2D function) {
+    public static KMeansClusteringAlgorithm<NDimensionalPoint> build(int k, FunctionDataset1D function) {
+        List<Cluster> clusters = new ArrayList<>(k);
+
+        function.iteratePoints(point -> {
+            clusters.add(new Cluster(point));
+            // Condition to continue iterating
+            return clusters.size() != k;
+        });
+
+        for (int i = 0; i < 5; i++) {
+            for (Cluster c : clusters) {
+                c.points().clear();
+            }
+            iteration(k, clusters, function);
+            System.out.println("iteration end!");
+        }
+
+        // Order the cluster by mean
+        Collections.sort(clusters);
+
+        return new KMeansClusteringAlgorithm<>(k, clusters);
+    }
+
+     public static KMeansClusteringAlgorithm<Point> build(int k, FunctionDataset2D function) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(point -> {

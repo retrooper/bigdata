@@ -1,5 +1,6 @@
 package com.github.retrooper.bigdata.dataset;
 
+import com.github.retrooper.bigdata.util.NDimensionalPoint;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.util.Collections;
@@ -22,11 +23,13 @@ public class FunctionDataset2D implements Dataset {
         }
     }
 
+    @Override
     public int dataPoints() {
         return getData().keySet().size();
     }
 
-    public void iteratePoints(Predicate<Point> consumer) {
+    @Override
+    public void iteratePoints(Predicate<NDimensionalPoint> consumer) {
         for (Map.Entry<Double, Double> entry : getData().entrySet()) {
             Point point = new Point(entry.getKey(), entry.getValue());
             if (!consumer.test(point)) break;

@@ -30,10 +30,12 @@ public class FunctionDatasetNDimensional implements Dataset {
         }
     }
 
+    @Override
     public int dataPoints() {
         return getData().keySet().size();
     }
 
+    @Override
     public void iteratePoints(Predicate<NDimensionalPoint> consumer) {
         for (Map.Entry<Double[], Double[]> entry : getData().entrySet()) {
 
