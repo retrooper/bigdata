@@ -1,48 +1,38 @@
 package com.github.retrooper.bigdata.dataset;
 
 import com.github.retrooper.bigdata.util.NDimensionalPoint;
+import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class FunctionDatasetNDimensional implements Dataset {
-    private final Map<Double[], Double[]> data = new HashMap<>();
-    public FunctionDatasetNDimensional(Double[][] input, Double[][] output) {
+    private final Map<Float[], Float[]> data = new HashMap<>();
+    public FunctionDatasetNDimensional(Float[][] input, Float[][] output) {
         for (int i = 0; i < input.length; i++) {
             getData().put(input[i], output[i]);
         }
     }
 
-    public FunctionDatasetNDimensional(double[][] input, double[][] output) {
-        Double[][] inputBoxed = new Double[input.length][];
+    public FunctionDatasetNDimensional(float[][] input, float[][] output) {
         for (int i = 0; i < input.length; i++) {
-            inputBoxed[i] = Arrays.stream(input[i]).boxed().toArray(Double[]::new);
-        }
-
-        Double[][] outputBoxed = new Double[output.length][];
-        for (int i = 0; i < output.length; i++) {
-            outputBoxed[i] = Arrays.stream(output[i]).boxed().toArray(Double[]::new);
-        }
-
-        for (int i = 0; i < input.length; i++) {
-            getData().put(inputBoxed[i], outputBoxed[i]);
+            getData().put(ArrayUtils.toObject(input[i]), ArrayUtils.toObject(output[i]));
         }
     }
 
-    public FunctionDatasetNDimensional(Double[][] input) {
-        for (Double[] doubles : input) {
-            getData().put(doubles, null);
+    public FunctionDatasetNDimensional(Float[][] input) {
+        for (Float[] floats : input) {
+            getData().put(floats, null);
         }
     }
 
 
     // Memory intensive
     @Deprecated
-    public FunctionDatasetNDimensional(double[][] input) {
-        for (double[] array : input) {
-            Double[] boxed = Arrays.stream(array).boxed().toArray(Double[]::new);
-            getData().put(boxed, null);
+    public FunctionDatasetNDimensional(float[][] input) {
+        for (float[] array : input) {
+            getData().put(ArrayUtils.toObject(array), null);
         }
     }
 
@@ -54,14 +44,14 @@ public class FunctionDatasetNDimensional implements Dataset {
 
     @Override
     public void iteratePoints(Predicate<NDimensionalPoint> consumer) {
-        for (Map.Entry<Double[], Double[]> entry : getData().entrySet()) {
+        for (Map.Entry<Float[], Float[]> entry : getData().entrySet()) {
 
             NDimensionalPoint point = new NDimensionalPoint(entry.getKey());
             if (!consumer.test(point)) break;
         }
     }
 
-    public Map<Double[], Double[]> getData() {
+    public Map<Float[], Float[]> getData() {
         return data;
     }
 }

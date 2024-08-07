@@ -7,6 +7,7 @@ import com.github.retrooper.bigdata.image.Image;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
 import com.github.retrooper.bigdata.util.NDimensionalPoint;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
 import java.util.function.Supplier;
@@ -16,11 +17,11 @@ public class ImageClassificationMain {
         File trainingDataDir = new File("src/main/resources/training");
         File[] files = trainingDataDir.listFiles();
         if (files == null) throw new IllegalStateException("Failed to find training data");
-        double[][] inputData = new double[files.length][];
+        Float[][] inputData = new Float[files.length][];
         for (int i = 0; i < files.length; i++) {
             File trainingImageFile = files[i];
             Image trainingImage = new Image(trainingImageFile.getPath());
-            inputData[i] = trainingImage.features().get().getData();
+            inputData[i] = ArrayUtils.toObject(trainingImage.features().get().getData());
         }
 
         FunctionDatasetNDimensional function = new FunctionDatasetNDimensional(inputData);
@@ -35,7 +36,7 @@ public class ImageClassificationMain {
 
         for (File testingImageFile : files) {
             Image test = new Image(testingImageFile.getPath());
-            double[] data = test.features().get().getData();
+            float[] data = test.features().get().getData();
             NDimensionalPoint point = new NDimensionalPoint(data);
 
             System.out.println("image name: " + test.path() + ", cluster: " + trainedModel.predict(point));

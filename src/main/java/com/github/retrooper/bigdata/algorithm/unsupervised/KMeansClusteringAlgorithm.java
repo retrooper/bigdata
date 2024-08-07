@@ -34,7 +34,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
 
         for (Cluster cluster : clusters) {
             int n = cluster.points().size();
-            double[] sums = new double[0];
+            float[] sums = new float[0];
 
             int coordsLength = -1;
             // Assume N coordinates
@@ -42,16 +42,16 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
                 NDimensionalPoint point = cluster.points().get(i);
                 if (coordsLength == -1) {
                     coordsLength = point.coordinates().length;
-                    sums = new double[coordsLength];
+                    sums = new float[coordsLength];
                 }
                 for (int j = 0; j < point.coordinates().length; j++) {
-                    double coord = point.coordinates()[j];
+                    float coord = point.coordinates()[j];
                     sums[j] += coord;
                 }
             }
 
             // Calculate means
-            double[] means = new double[sums.length];
+            float[] means = new float[sums.length];
             for (int i = 0; i < sums.length; i++) {
                 means[i] = sums[i] / n;
             }
@@ -109,7 +109,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
 
 
     @Override
-    public double predict(Z point) {
+    public float predict(Z point) {
         return Cluster.findClusterIndex(k, clusters(), point);
     }
 

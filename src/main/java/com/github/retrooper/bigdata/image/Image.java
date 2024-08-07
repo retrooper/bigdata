@@ -72,16 +72,7 @@ public class Image {
 
             // Don't save the processed image!
             //Imgcodecs.imwrite(path + "_PROCESSED" + ".jpg", features.t());
-
-            float[] dstScaledData = features.toArray();
-
-
-            double[] data = new double[dstScaledData.length];
-            for (int i = 0; i < dstScaledData.length; i++) {
-                data[i] = dstScaledData[i];
-            }
-
-            return new ImageFeatures(data);
+            return new ImageFeatures(features.toArray());
         };
     }
 }

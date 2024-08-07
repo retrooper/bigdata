@@ -1,13 +1,13 @@
 package com.github.retrooper.bigdata.image;
 
 public class ImageFeatures {
-    private final double[] data;
+    private final float[] data;
 
-    public ImageFeatures(double[] data) {
+    public ImageFeatures(float[] data) {
         this.data = data;
     }
 
-    public double[] getData() {
+    public float[] getData() {
         return data;
     }
 }

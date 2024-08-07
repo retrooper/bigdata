@@ -5,22 +5,22 @@ import com.github.retrooper.bigdata.dataset.FunctionDataset2D;
 
 import java.util.Map;
 
-public class LinearRegressionAlgorithm implements LearningAlgorithm<Double> {
-    private final double r;
-    private final double gradient;
-    private final double height;
+public class LinearRegressionAlgorithm implements LearningAlgorithm<Float> {
+    private final float r;
+    private final float gradient;
+    private final float height;
 
-    private LinearRegressionAlgorithm(double r, double gradient, double height) {
+    private LinearRegressionAlgorithm(float r, float gradient, float height) {
         this.r = r;
         this.gradient = gradient;
         this.height = height;
     }
 
     public static LinearRegressionAlgorithm build(FunctionDataset2D function) {
-        double xSum = 0, ySum = 0, xSqSum = 0, ySqSum = 0, xySum = 0;
-        for (Map.Entry<Double, Double> entry : function.getData().entrySet()) {
-            double x = entry.getKey();
-            double y = entry.getValue();
+        float xSum = 0, ySum = 0, xSqSum = 0, ySqSum = 0, xySum = 0;
+        for (Map.Entry<Float, Float> entry : function.getData().entrySet()) {
+            float x = entry.getKey();
+            float y = entry.getValue();
             xSum += x;
             ySum += y;
             xSqSum += x * x;
@@ -30,36 +30,36 @@ public class LinearRegressionAlgorithm implements LearningAlgorithm<Double> {
 
         int n = function.dataPoints();
 
-        double xMean = xSum / n;
-        double yMean = ySum / n;
+        float xMean = xSum / n;
+        float yMean = ySum / n;
 
-        double Sxx = xSqSum - n * xMean * xMean;
-        double Syy = ySqSum - n * yMean * yMean;
-        double Sxy = xySum - n * xMean * yMean;
+        float Sxx = xSqSum - n * xMean * xMean;
+        float Syy = ySqSum - n * yMean * yMean;
+        float Sxy = xySum - n * xMean * yMean;
         // Correlation coefficient
-        double r = Sxy / Math.sqrt(Sxx * Syy);
+        float r = (float) (Sxy / Math.sqrt(Sxx * Syy));
 
         // Gradient of this function
-        double gradient = Sxy / Sxx;
+        float gradient = Sxy / Sxx;
 
-        double height = yMean - gradient * xMean;
+        float height = yMean - gradient * xMean;
         return new LinearRegressionAlgorithm(r, gradient, height);
     }
 
     @Override
-    public double predict(Double x) {
+    public float predict(Float x) {
         return gradient() * x + height();
     }
 
-    public double r() {
+    public float r() {
         return r;
     }
 
-    public double gradient() {
+    public float gradient() {
         return gradient;
     }
 
-    public double height() {
+    public float height() {
         return height;
     }
 }

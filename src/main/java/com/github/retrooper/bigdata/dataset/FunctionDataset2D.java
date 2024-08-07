@@ -10,28 +10,28 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class FunctionDataset2D implements Dataset {
-    private final Map<Double, Double> data = new HashMap<>();
-    public FunctionDataset2D(Double[] input, Double[] output) {
+    private final Map<Float, Float> data = new HashMap<>();
+    public FunctionDataset2D(Float[] input, Float[] output) {
         for (int i = 0; i < input.length; i++) {
             getData().put(input[i], output[i]);
         }
     }
 
-    public FunctionDataset2D(double[] input, double[] output) {
+    public FunctionDataset2D(float[] input, float[] output) {
         for (int i = 0; i < input.length; i++) {
             getData().put(input[i], output[i]);
         }
     }
 
-    public FunctionDataset2D(Double[] input) {
-        for (Double aDouble : input) {
-            getData().put(aDouble, 0.0);
+    public FunctionDataset2D(Float[] input) {
+        for (Float aFloat : input) {
+            getData().put(aFloat, null);
         }
     }
 
-    public FunctionDataset2D(double[] input) {
-        for (double v : input) {
-            getData().put(v, 0.0);
+    public FunctionDataset2D(float[] input) {
+        for (float v : input) {
+            getData().put(v, null);
         }
     }
 
@@ -42,13 +42,13 @@ public class FunctionDataset2D implements Dataset {
 
     @Override
     public void iteratePoints(Predicate<NDimensionalPoint> consumer) {
-        for (Map.Entry<Double, Double> entry : getData().entrySet()) {
+        for (Map.Entry<Float, Float> entry : getData().entrySet()) {
             Point point = new Point(entry.getKey(), entry.getValue());
             if (!consumer.test(point)) break;
         }
     }
 
-    public Map<Double, Double> getData() {
+    public Map<Float, Float> getData() {
         return data;
     }
 }
