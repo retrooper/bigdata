@@ -1,10 +1,10 @@
 package com.github.retrooper;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
-import com.github.retrooper.bigdata.algorithm.supervised.KMeansClusteringAlgorithm;
+import com.github.retrooper.bigdata.algorithm.unsupervised.KMeansClusteringAlgorithm;
 import com.github.retrooper.bigdata.dataset.FunctionDataset;
 import com.github.retrooper.bigdata.model.ProductionModel;
-import com.github.retrooper.bigdata.model.supervised.SupervisedTrainingModel;
+import com.github.retrooper.bigdata.model.TrainingModel;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.util.Arrays;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 public class KMeansClusterMain {
     public static void main(String[] args) {
         double[] input = new double[]{
-                1, 1, 3, 3.3, 5, 5
+                1.1, 1.1, 1.1, 1.4, 3, 3.2, 3.3, 3.4, 5, 5, 5
         };
 
         double[] output = new double[input.length];
@@ -24,8 +24,8 @@ public class KMeansClusterMain {
 
         FunctionDataset<Double, Double> function = new FunctionDataset<>(Arrays.stream(input).boxed().toArray(Double[]::new),
                 Arrays.stream(output).boxed().toArray(Double[]::new));
-        Supplier<LearningAlgorithm<Point>> dataSupplier = () -> KMeansClusteringAlgorithm.build(2, function);
-        SupervisedTrainingModel<Point> trainingModel = new SupervisedTrainingModel<Point>();
+        Supplier<LearningAlgorithm<Point>> dataSupplier = () -> KMeansClusteringAlgorithm.build(3, function);
+        TrainingModel<Point> trainingModel = new TrainingModel<>();
         ProductionModel<Point> trainedModel = trainingModel.train(dataSupplier);
 
         Scanner scanner = new Scanner(System.in);

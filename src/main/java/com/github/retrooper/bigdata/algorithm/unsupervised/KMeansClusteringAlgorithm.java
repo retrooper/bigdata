@@ -1,12 +1,13 @@
-package com.github.retrooper.bigdata.algorithm.supervised;
+package com.github.retrooper.bigdata.algorithm.unsupervised;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.dataset.FunctionDataset;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
     private final int k;
@@ -28,6 +29,13 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
         });
 
         // Iteration 2
+
+        for (Cluster c : clusters) {
+            //System.out.println("CLUSTER; CENTROID: (" + c.center.x() + "|" + c.center.y() + ")" + ", points ->");
+            for (Point p : c.points) {
+                //System.out.println("Point: (" + p.x() + "|" + p.y() + ")");
+            }
+        }
         for (Cluster cluster : clusters) {
             int n = cluster.points().size();
             double xSum = 0;
@@ -52,9 +60,17 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
             return clusters.size() != k;
         });
 
+        for (int i = 0; i < 5; i++) {
+            for (Cluster c : clusters) {
+                c.points().clear();
+            }
+            //System.out.println("ITERATION INDEX: " + i + "------");
+            iteration(k, clusters, function);
+            //System.out.println("ITERATION OVER------");
+        }
 
-        iteration(k, clusters, function);
-        iteration(k, clusters, function);
+        // Order the cluster by mean
+        //Collections.sort(clusters);
 
         return new KMeansClusteringAlgorithm(k, clusters);
     }
@@ -68,7 +84,7 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
         return clusters;
     }
 
-    public static class Cluster {
+    public static class Cluster implements Comparable<Cluster> {
         private Point center;
         private final List<Point> points = new ArrayList<>();
 
@@ -97,6 +113,34 @@ public class KMeansClusteringAlgorithm implements LearningAlgorithm<Point> {
 
         public static Cluster findCluster(int k, List<Cluster> clusters, Point point) {
             return clusters.get(findClusterIndex(k, clusters, point));
+        }
+
+        @Override
+        public int compareTo(Cluster o) {
+            double sum = 0;
+            for (Point p : points()) {
+                sum += p.x() + p.y();
+            }
+
+            double otherSum = 0;
+            for (Point p : o.points()) {
+                otherSum += p.x() + p.y();
+            }
+
+            double mean = sum / points().size();
+            double otherMean = otherSum / o.points().size();
+            return Double.compare(mean, otherMean);
+        }
+
+        @Override
+        public Cluster clone() {
+            List<Point> newPoints = new ArrayList<>();
+            for (Point p : points()) {
+                newPoints.add(p.clone());
+            }
+            Cluster cluster = new Cluster(center.clone());
+            cluster.points().addAll(newPoints);
+            return cluster;
         }
 
         public Point center() {

@@ -4,7 +4,7 @@ import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.supervised.LinearRegressionAlgorithm;
 import com.github.retrooper.bigdata.dataset.FunctionDataset;
 import com.github.retrooper.bigdata.model.ProductionModel;
-import com.github.retrooper.bigdata.model.supervised.SupervisedTrainingModel;
+import com.github.retrooper.bigdata.model.TrainingModel;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -23,7 +23,7 @@ public class LinearRegressionMain {
         FunctionDataset<Double, Double> function = new FunctionDataset<>(Arrays.stream(input).boxed().toArray(Double[]::new),
                 Arrays.stream(output).boxed().toArray(Double[]::new));
         Supplier<LearningAlgorithm<Double>> dataSupplier = () -> LinearRegressionAlgorithm.build(function);
-        SupervisedTrainingModel<Double> trainingModel = new SupervisedTrainingModel<>();
+        TrainingModel<Double> trainingModel = new TrainingModel<>();
         ProductionModel<Double> trainedModel = trainingModel.train(dataSupplier);
 
         Scanner scanner = new Scanner(System.in);
