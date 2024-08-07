@@ -94,11 +94,12 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
             return clusters.size() != k;
         });
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 50; i++) {
             for (Cluster c : clusters) {
                 c.points().clear();
             }
             iteration(k, clusters, function);
+            System.out.println("K means interation at index: " + i);
         }
 
         // Order the cluster by mean
@@ -127,10 +128,10 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
 
         public static int findClusterIndex(int k, List<Cluster> clusters, NDimensionalPoint point) {
             int bestClusterIndex = 0;
-            double lowestDistance = Double.MAX_VALUE;
+            float lowestDistance = Float.MAX_VALUE;
             for (int i = 0; i < k; i++) {
                 Cluster cluster = clusters.get(i);
-                double dist = point.distance(cluster.center);
+                float dist = point.distance(cluster.center);
                 if (dist <= lowestDistance) {
                     bestClusterIndex = i;
                     lowestDistance = dist;
@@ -146,19 +147,19 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
 
         @Override
         public int compareTo(Cluster o) {
-            double sum = 0;
+            float sum = 0;
             for (NDimensionalPoint p : points()) {
                 sum += p.getCoordinatesSum();
             }
 
-            double otherSum = 0;
+            float otherSum = 0;
             for (NDimensionalPoint p : o.points()) {
                 otherSum += p.getCoordinatesSum();
             }
 
-            double mean = sum / points().size();
-            double otherMean = otherSum / o.points().size();
-            return Double.compare(mean, otherMean);
+            float mean = sum / points().size();
+            float otherMean = otherSum / o.points().size();
+            return Float.compare(mean, otherMean);
         }
 
         @Override

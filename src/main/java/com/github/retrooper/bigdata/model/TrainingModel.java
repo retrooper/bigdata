@@ -12,7 +12,7 @@ public class TrainingModel<T> implements Model {
         LearningAlgorithm<T> algorithm = supplier.get();
         return new ProductionModel<T>() {
             @Override
-            public double predict(T x) {
+            public float predict(T x) {
                 return algorithm.predict(x);
             }
         };

@@ -21,10 +21,10 @@ public class NDimensionalPoint {
         this.coordinates = array;
     }
 
-    public double distanceSquared(NDimensionalPoint point) {
+    public float distanceSquared(NDimensionalPoint point) {
         float distanceSquared = 0.0F;
         for (int i = 0; i < coordinates.length; i++) {
-            double difference = coordinates[i] - point.coordinates[i];
+            float difference = coordinates[i] - point.coordinates[i];
             distanceSquared += difference * difference;
         }
         return distanceSquared;
