@@ -43,7 +43,8 @@ public class FunctionDataset2D implements Dataset {
     @Override
     public void iteratePoints(Predicate<NDimensionalPoint> consumer) {
         for (Map.Entry<Float, Float> entry : getData().entrySet()) {
-            Point point = new Point(entry.getKey(), entry.getValue());
+            float value = entry.getValue() != null ? entry.getValue() : 0.0F;
+            Point point = new Point(entry.getKey(), value);
             if (!consumer.test(point)) break;
         }
     }

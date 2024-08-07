@@ -1,6 +1,6 @@
 package com.github.retrooper.bigdata.util;
 
-import java.util.stream.Stream;
+import java.util.Arrays;
 
 public class NDimensionalPoint {
     private final float[] coordinates;
@@ -40,6 +40,12 @@ public class NDimensionalPoint {
             sum += c;
         }
         return sum;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof NDimensionalPoint)) return false;
+        return Arrays.equals(coordinates, ((NDimensionalPoint)obj).coordinates);
     }
 
     @Override

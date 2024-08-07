@@ -31,7 +31,6 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
         });
 
 
-
         for (Cluster cluster : clusters) {
             int n = cluster.points().size();
             float[] sums = new float[0];
@@ -63,7 +62,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
         }
     }
 
-     public static KMeansClusteringAlgorithm<Point> build(int k, FunctionDataset2D function) {
+    public static KMeansClusteringAlgorithm<Point> build(int k, FunctionDataset2D function) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(point -> {
@@ -94,7 +93,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
             return clusters.size() != k;
         });
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 10; i++) {
             for (Cluster c : clusters) {
                 c.points().clear();
             }
