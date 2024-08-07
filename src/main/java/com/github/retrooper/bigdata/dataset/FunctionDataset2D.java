@@ -23,6 +23,18 @@ public class FunctionDataset2D implements Dataset {
         }
     }
 
+    public FunctionDataset2D(Double[] input) {
+        for (Double aDouble : input) {
+            getData().put(aDouble, 0.0);
+        }
+    }
+
+    public FunctionDataset2D(double[] input) {
+        for (double v : input) {
+            getData().put(v, 0.0);
+        }
+    }
+
     @Override
     public int dataPoints() {
         return getData().keySet().size();
