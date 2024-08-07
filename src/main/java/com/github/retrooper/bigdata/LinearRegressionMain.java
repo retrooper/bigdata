@@ -1,4 +1,4 @@
-package com.github.retrooper;
+package com.github.retrooper.bigdata;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.supervised.LinearRegressionAlgorithm;
@@ -6,7 +6,6 @@ import com.github.retrooper.bigdata.dataset.FunctionDataset2D;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
 
-import java.util.Arrays;
 import java.util.Scanner;
 import java.util.function.Supplier;
 

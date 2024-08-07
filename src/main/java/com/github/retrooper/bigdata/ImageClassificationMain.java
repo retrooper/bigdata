@@ -1,4 +1,4 @@
-package com.github.retrooper;
+package com.github.retrooper.bigdata;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.unsupervised.KMeansClusteringAlgorithm;
@@ -21,7 +21,6 @@ public class ImageClassificationMain {
             File trainingImageFile = files[i];
             Image trainingImage = new Image(trainingImageFile.getPath());
             inputData[i] = trainingImage.features().get().getData();
-
         }
 
         FunctionDatasetNDimensional function = new FunctionDatasetNDimensional(inputData);
@@ -33,7 +32,6 @@ public class ImageClassificationMain {
         File testingDataDir = new File("src/main/resources/testing");
         files = testingDataDir.listFiles();
         if (files == null) throw new IllegalStateException("Failed to find training data");
-
 
         for (File testingImageFile : files) {
             Image test = new Image(testingImageFile.getPath());

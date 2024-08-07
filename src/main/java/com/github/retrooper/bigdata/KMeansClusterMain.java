@@ -1,4 +1,4 @@
-package com.github.retrooper;
+package com.github.retrooper.bigdata;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.unsupervised.KMeansClusteringAlgorithm;
