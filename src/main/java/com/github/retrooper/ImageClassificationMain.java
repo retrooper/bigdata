@@ -25,13 +25,23 @@ public class ImageClassificationMain {
         }
 
 
+        int maxFeatures = Integer.MAX_VALUE;
         for (Image t : trainingImages) {
-            System.out.println("feature count: " + t.features().get().getData().length);
+            double[] data = t.features().get().getData();
+            System.out.println("feature count: " + data.length);
+            if (data.length < maxFeatures) {
+                maxFeatures = data.length;
+            }
         }
+
         Double[][] inputData = new Double[trainingImages.size()][];
 
         for (int i = 0; i < trainingImages.size(); i++) {
-            inputData[i] = Arrays.stream(trainingImages.get(i).features().get().getData()).boxed().toArray(Double[]::new);
+            double[] rawData = trainingImages.get(i).features().get().getData();
+
+            double[] data = new double[maxFeatures];
+            System.arraycopy(rawData, 0, data, 0, data.length);
+            inputData[i] = Arrays.stream(data).boxed().toArray(Double[]::new);
         }
 
         Double[][] outputData = new Double[inputData.length][];

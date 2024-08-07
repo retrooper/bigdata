@@ -7,8 +7,11 @@ import com.github.retrooper.bigdata.util.NDimensionalPoint;
 import com.github.retrooper.bigdata.util.Point;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> implements LearningAlgorithm<Z> {
     private final int k;
@@ -31,22 +34,36 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
 
         for (Cluster cluster : clusters) {
             int n = cluster.points().size();
-            List<Double> coordSum = new ArrayList<>();
+            double[] sums = new double[0];
+
+            int coordsLength = -1;
+            // Assume N coordinates
             for (int i = 0; i < n; i++) {
                 NDimensionalPoint<Double> point = cluster.points().get(i);
-                for (double coord : point.coordinates()) {
-
+                if (coordsLength == -1) {
+                    coordsLength = point.coordinates().length;
+                    sums = new double[coordsLength];
                 }
-                //xSum += point.x();
-                //ySum += point.y();
+                for (int j = 0; j < point.coordinates().length; j++) {
+                    double coord = point.coordinates()[j];
+                    sums[j] += coord;
+                }
             }
+
+            // Calculate means
+            double[] means = new double[sums.length];
+            for (int i = 0; i < sums.length; i++) {
+                means[i] = sums[i] / n;
+            }
+
+            cluster.center(new NDimensionalPoint<>(Arrays.stream(means).boxed().toArray(Double[]::new)));
 
             // New center is the mean of all points in that particular cluster
             //cluster.center(new Point(xSum / n, ySum / n));
         }
     }
 
-    public static KMeansClusteringAlgorithm build(int k, FunctionDataset2D<Double, Double> function) {
+    public static KMeansClusteringAlgorithm<Point> build(int k, FunctionDataset2D<Double, Double> function) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(point -> {
@@ -65,10 +82,10 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
         // Order the cluster by mean
         Collections.sort(clusters);
 
-        return new KMeansClusteringAlgorithm(k, clusters);
+        return new KMeansClusteringAlgorithm<>(k, clusters);
     }
 
-    public static KMeansClusteringAlgorithm build(int k, FunctionDatasetNDimensional<Double, Double> function) {
+    public static KMeansClusteringAlgorithm<NDimensionalPoint<Double>> build(int k, FunctionDatasetNDimensional<Double, Double> function) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(point -> {
@@ -87,7 +104,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint<Double>> impl
         // Order the cluster by mean
         Collections.sort(clusters);
 
-        return new KMeansClusteringAlgorithm(k, clusters);
+        return new KMeansClusteringAlgorithm<>(k, clusters);
     }
 
 
