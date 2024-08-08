@@ -14,11 +14,10 @@ public class NDimensionalPoint {
     }
 
     public NDimensionalPoint(Float[] coordinates) {
-        float[] array = new float[coordinates.length];
-        for (int i = 0; i < array.length; i++) {
-            array[i] = coordinates[i];
+        this.coordinates = new float[coordinates.length];
+        for (int i = 0; i < coordinates.length; i++) {
+            this.coordinates[i] = coordinates[i];
         }
-        this.coordinates = array;
     }
 
     public float distanceSquared(NDimensionalPoint point) {

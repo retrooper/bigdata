@@ -2,10 +2,8 @@ package com.github.retrooper.bigdata.algorithm.unsupervised;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.dataset.Dataset;
-import com.github.retrooper.bigdata.dataset.FunctionDataset2D;
-import com.github.retrooper.bigdata.dataset.FunctionDatasetNDimensional;
+import com.github.retrooper.bigdata.dataset.UnlabeledDatasetND;
 import com.github.retrooper.bigdata.util.NDimensionalPoint;
-import com.github.retrooper.bigdata.util.Point;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,16 +31,14 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
 
         for (Cluster cluster : clusters) {
             int n = cluster.points().size();
-            float[] sums = new float[0];
-
-            int coordsLength = -1;
+            int coordsLength = cluster.center.coordinates().length;
+            if (coordsLength == 0) {
+                coordsLength = cluster.points.get(0).coordinates().length;
+            }
+            float[] sums = new float[coordsLength];
             // Assume N coordinates
             for (int i = 0; i < n; i++) {
                 NDimensionalPoint point = cluster.points().get(i);
-                if (coordsLength == -1) {
-                    coordsLength = point.coordinates().length;
-                    sums = new float[coordsLength];
-                }
                 for (int j = 0; j < point.coordinates().length; j++) {
                     float coord = point.coordinates()[j];
                     sums[j] += coord;
@@ -51,7 +47,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
 
             // Calculate means
             float[] means = new float[sums.length];
-            for (int i = 0; i < sums.length; i++) {
+            for (int i = 0; i < means.length; i++) {
                 means[i] = sums[i] / n;
             }
 
@@ -62,7 +58,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
         }
     }
 
-    public static KMeansClusteringAlgorithm<Point> build(int k, FunctionDataset2D function) {
+    public static KMeansClusteringAlgorithm<NDimensionalPoint> build(int k, Dataset function, int iterations) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(point -> {
@@ -71,11 +67,12 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
             return clusters.size() != k;
         });
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < iterations; i++) {
             for (Cluster c : clusters) {
                 c.points().clear();
             }
             iteration(k, clusters, function);
+            System.out.println("K means interation at index: " + i);
         }
 
         // Order the cluster by mean
@@ -84,7 +81,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
         return new KMeansClusteringAlgorithm<>(k, clusters);
     }
 
-    public static KMeansClusteringAlgorithm<NDimensionalPoint> build(int k, FunctionDatasetNDimensional function) {
+    public static KMeansClusteringAlgorithm<NDimensionalPoint> build(int k, UnlabeledDatasetND function, int iterations) {
         List<Cluster> clusters = new ArrayList<>(k);
 
         function.iteratePoints(point -> {
@@ -93,7 +90,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
             return clusters.size() != k;
         });
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < iterations; i++) {
             for (Cluster c : clusters) {
                 c.points().clear();
             }

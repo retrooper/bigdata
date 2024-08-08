@@ -2,7 +2,7 @@ package com.github.retrooper.bigdata;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.unsupervised.KMeansClusteringAlgorithm;
-import com.github.retrooper.bigdata.dataset.FunctionDatasetNDimensional;
+import com.github.retrooper.bigdata.dataset.UnlabeledDatasetND;
 import com.github.retrooper.bigdata.image.Image;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
@@ -24,8 +24,8 @@ public class ImageClassificationMain {
             inputData[i] = ArrayUtils.toObject(trainingImage.features().get().getData());
         }
 
-        FunctionDatasetNDimensional function = new FunctionDatasetNDimensional(inputData);
-        Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier = () -> KMeansClusteringAlgorithm.build(2, function);
+        UnlabeledDatasetND function = new UnlabeledDatasetND(inputData);
+        Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier = () -> KMeansClusteringAlgorithm.build(2, function, 100);
         TrainingModel<NDimensionalPoint> trainingModel = new TrainingModel<>();
         ProductionModel<NDimensionalPoint> trainedModel = trainingModel.train(dataSupplier);
 

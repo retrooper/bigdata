@@ -7,21 +7,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
-public class FunctionDatasetNDimensional implements Dataset {
+public class UnlabeledDatasetND implements Dataset {
     private final Map<Float[], Float[]> data = new HashMap<>();
-    public FunctionDatasetNDimensional(Float[][] input, Float[][] output) {
+    public UnlabeledDatasetND(Float[][] input, Float[][] output) {
         for (int i = 0; i < input.length; i++) {
             getData().put(input[i], output[i]);
         }
     }
 
-    public FunctionDatasetNDimensional(float[][] input, float[][] output) {
+    public UnlabeledDatasetND(float[][] input, float[][] output) {
         for (int i = 0; i < input.length; i++) {
             getData().put(ArrayUtils.toObject(input[i]), ArrayUtils.toObject(output[i]));
         }
     }
 
-    public FunctionDatasetNDimensional(Float[][] input) {
+    public UnlabeledDatasetND(Float[][] input) {
         for (Float[] floats : input) {
             getData().put(floats, null);
         }
@@ -30,7 +30,7 @@ public class FunctionDatasetNDimensional implements Dataset {
 
     // Memory intensive
     @Deprecated
-    public FunctionDatasetNDimensional(float[][] input) {
+    public UnlabeledDatasetND(float[][] input) {
         for (float[] array : input) {
             getData().put(ArrayUtils.toObject(array), null);
         }

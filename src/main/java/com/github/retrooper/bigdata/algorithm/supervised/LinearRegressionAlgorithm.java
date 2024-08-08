@@ -1,7 +1,7 @@
 package com.github.retrooper.bigdata.algorithm.supervised;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
-import com.github.retrooper.bigdata.dataset.FunctionDataset2D;
+import com.github.retrooper.bigdata.dataset.LabeledDataset2D;
 
 import java.util.Map;
 
@@ -16,7 +16,7 @@ public class LinearRegressionAlgorithm implements LearningAlgorithm<Float> {
         this.height = height;
     }
 
-    public static LinearRegressionAlgorithm build(FunctionDataset2D function) {
+    public static LinearRegressionAlgorithm build(LabeledDataset2D function) {
         float xSum = 0, ySum = 0, xSqSum = 0, ySqSum = 0, xySum = 0;
         for (Map.Entry<Float, Float> entry : function.getData().entrySet()) {
             float x = entry.getKey();
