@@ -28,8 +28,6 @@ public class UnlabeledDatasetND implements Dataset {
     }
 
 
-    // Memory intensive
-    @Deprecated
     public UnlabeledDatasetND(float[][] input) {
         for (float[] array : input) {
             getData().put(ArrayUtils.toObject(array), null);

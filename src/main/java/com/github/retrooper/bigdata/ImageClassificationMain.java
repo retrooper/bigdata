@@ -18,7 +18,7 @@ public class ImageClassificationMain {
         File trainingDataDir = new File("src/main/resources/training");
         File[] files = trainingDataDir.listFiles();
         if (files == null) throw new IllegalStateException("Failed to find training data");
-        Float[][] inputData = new Float[files.length][];
+        float[][] inputData = new float[files.length][];
         Size imageSize = null;
         for (int i = 0; i < files.length; i++) {
             File trainingImageFile = files[i];
@@ -28,22 +28,23 @@ public class ImageClassificationMain {
                 imageSize = currentSize.clone();
             } else if (imageSize.width != currentSize.width || imageSize.height != currentSize.height) {
                 // Inconsistent image sizing
-                System.out.println("Image sizes are inconsistent. We will resize them all to 64x64");
+                System.out.println("Image sizes are inconsistent. We will resize them all to 256x256");
                 for (i = 0; i < files.length; i++) {
                     trainingImage = new Image(files[i].getPath());
-                    trainingImage.resize(128, 128);
+                    trainingImage.resize(150, 150);
                     trainingImage.save();
                 }
                 System.out.println("Successfully resized all images to 64x64. Please run the program again!");
                 System.exit(0);
             }
-            inputData[i] = ArrayUtils.toObject(trainingImage.features().get().getData());
+            inputData[i] = trainingImage.features().get().getData();
         }
 
         System.out.println("Successfully read all image data!");
 
         UnlabeledDatasetND function = new UnlabeledDatasetND(inputData);
-        Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier = () -> KMeansClusteringAlgorithm.build(2, function, 100);
+        Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier =
+                () -> KMeansClusteringAlgorithm.build(2, function, 50);
         TrainingModel<NDimensionalPoint> trainingModel = new TrainingModel<>();
         ProductionModel<NDimensionalPoint> trainedModel = trainingModel.train(dataSupplier);
 
@@ -56,7 +57,6 @@ public class ImageClassificationMain {
             Image test = new Image(testingImageFile.getPath());
             float[] data = test.features().get().getData();
             NDimensionalPoint point = new NDimensionalPoint(data);
-
             System.out.println("image name: " + test.path() + ", cluster: " + trainedModel.predict(point));
         }
     }
