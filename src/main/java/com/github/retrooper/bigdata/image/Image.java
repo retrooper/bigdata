@@ -13,9 +13,7 @@ import java.util.function.Supplier;
 public class Image {
     private static final float THRESHOLD = 200.0F;
     private final String path;
-    private final Mat src;
-    @Nullable
-    private ImageFeatures features;
+    private Mat src;
     public Image(String path) {
         try {
             OpenCV.loadLibrary();
@@ -38,6 +36,16 @@ public class Image {
         return src.height();
     }
 
+    public void resize(int width, int height) {
+        Mat dst = new Mat();
+        Imgproc.resize(src, dst, new Size(width, height), 0, 0, Imgproc.INTER_LINEAR_EXACT);
+        src = dst;
+    }
+
+    public void save() {
+        Imgcodecs.imwrite(path, src);
+    }
+
     public Supplier<ImageFeatures> features() {
         return () -> {
             try {
@@ -51,7 +59,6 @@ public class Image {
             HOGDescriptor descriptor = new HOGDescriptor();
             MatOfFloat features = new MatOfFloat();
             descriptor.compute(srcGray, features);
-
             /*
             /// Normalizing
             Core.normalize(dst, dstNorm, 0, 255, Core.NORM_MINMAX);
