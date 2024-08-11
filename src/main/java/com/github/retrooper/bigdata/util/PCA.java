@@ -1,18 +1,31 @@
 package com.github.retrooper.bigdata.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PCA {
-    public static int FEATURES_DIVISOR = 8; //8
+    //Feature reducer (for performance reasons)
+    public static int FEATURES_DIVISOR = 7; //8
+
+    // Data
     public float[][] data;
+
+    //Optional labels
+    @Nullable
+    public int[] labels;
+
+    // Dimension reduction variables
+    private final int maxIterations;
     public float[] mean;
     public float[][] covarianceMatrix;
     public volatile float[] eigenvalues;
     public volatile float[][] eigenvectors;
 
-    public PCA() {
+    public PCA(int maxIterations) {
+        this.maxIterations = maxIterations;
     }
 
     public void init() {
@@ -82,7 +95,7 @@ public class PCA {
             ex.execute(() ->{
                 float[] vector = new float[numFeatures];
                 vector[finalI] = 1.0f; // Start with a unit vector
-                eigenvalues[finalI] = powerIteration(covarianceMatrix, vector, 5);
+                eigenvalues[finalI] = powerIteration(covarianceMatrix, vector, maxIterations);
                 eigenvectors[finalI] = vector;
                 //System.out.println("i: " + (finalI + 1)+ "/" + numFeatures);
                 atomicI.incrementAndGet();

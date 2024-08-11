@@ -19,7 +19,7 @@ public class ImageClassificationMain {
         File trainingDataDir = new File("src/main/resources/training");
         File[] files = trainingDataDir.listFiles();
         if (files == null) throw new IllegalStateException("Failed to find training data");
-        PCA pca = new PCA();
+        PCA pca = new PCA(5);
         {
             pca.data = new float[files.length][];
             Size imageSize = new Size(128, 128);
