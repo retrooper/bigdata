@@ -60,7 +60,7 @@ public class ImageClassificationMain {
         for (File testingImageFile : files) {
             Image test = new Image(testingImageFile.getPath());
             float[] data = test.features().get().getData();
-            NDimensionalPoint point = new NDimensionalPoint(data);
+            NDimensionalPoint point = new NDimensionalPoint(pca.transformSingleSample(data, 2));
             System.out.println("image name: " + test.path() + ", cluster: " + trainedModel.predict(point));
         }
     }

@@ -1,30 +1,36 @@
 package com.github.retrooper.bigdata.util;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class PCA {
     public float[][] data;
     public float[] mean;
     public float[][] covarianceMatrix;
-    public float[] eigenvalues;
-    public float[][] eigenvectors;
+    public volatile float[] eigenvalues;
+    public volatile float[][] eigenvectors;
 
     public PCA() {
     }
 
     public void init() {
         mean = calculateMean();
+        System.out.println("Calculating covariance matrix!");
         calculateCovarianceMatrix();
+        System.out.println("Done calculating...");
         calculateEigen();
     }
 
     // Step 1: Calculate the mean of each feature
     private float[] calculateMean() {
         int numSamples = data.length;
-        int numFeatures = data[0].length;
+        int numFeatures = data[0].length / 10;
         float[] mean = new float[numFeatures];
 
-        for (int i = 0; i < numSamples; i++) {
+        for (float[] datum : data) {
             for (int j = 0; j < numFeatures; j++) {
-                mean[j] += data[i][j];
+                mean[j] += datum[j];
             }
         }
 
@@ -38,7 +44,7 @@ public class PCA {
     // Step 2: Calculate the covariance matrix
     private void calculateCovarianceMatrix() {
         int numSamples = data.length;
-        int numFeatures = data[0].length;
+        int numFeatures = data[0].length / 10;
         float[][] centeredData = new float[numSamples][numFeatures];
 
         // Center the data by subtracting the mean
@@ -47,10 +53,6 @@ public class PCA {
                 centeredData[i][j] = data[i][j] - mean[j];
             }
         }
-
-        data = null;
-        mean = null;
-        System.gc();
 
         // Compute the covariance matrix
         covarianceMatrix = new float[numFeatures][numFeatures];
@@ -72,13 +74,31 @@ public class PCA {
         eigenvalues = new float[numFeatures];
         eigenvectors = new float[numFeatures][numFeatures];
 
+        ExecutorService ex = Executors.newCachedThreadPool();
+        AtomicInteger atomicI = new AtomicInteger(0);
         for (int i = 0; i < numFeatures; i++) {
-            float[] vector = new float[numFeatures];
-            vector[i] = 1.0f; // Start with a unit vector
-            eigenvalues[i] = powerIteration(covarianceMatrix, vector, 1000);
-            eigenvectors[i] = vector;
+            int finalI = i;
+            ex.execute(() ->{
+                float[] vector = new float[numFeatures];
+                vector[finalI] = 1.0f; // Start with a unit vector
+                eigenvalues[finalI] = powerIteration(covarianceMatrix, vector, 5);
+                eigenvectors[finalI] = vector;
+                //System.out.println("i: " + (finalI + 1)+ "/" + numFeatures);
+                atomicI.incrementAndGet();
+            });
+
         }
 
+        while (atomicI.get() != numFeatures) {
+            System.out.println("Progress: " + atomicI.get() + "/" + numFeatures);
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        System.out.println("Calculate eigen");
         // Sort eigenvalues and corresponding eigenvectors in descending order
         sortEigen();
     }
@@ -138,8 +158,9 @@ public class PCA {
 
     // Step 4: Transform the data to the new space with k principal components
     public float[][] transform(int k) {
+        System.out.println("Transforming");
         int numSamples = data.length;
-        int numFeatures = data[0].length;
+        int numFeatures = data[0].length / 10;
         float[][] result = new float[numSamples][k];
         float[][] centeredData = new float[numSamples][numFeatures];
 
@@ -150,6 +171,8 @@ public class PCA {
             }
         }
 
+        System.out.println("Still transforming!");
+
         // Project the data onto the top k eigenvectors
         for (int i = 0; i < numSamples; i++) {
             for (int j = 0; j < k; j++) {
@@ -158,7 +181,25 @@ public class PCA {
                 }
             }
         }
+        return result;
+    }
 
+    public float[] transformSingleSample(float[] sample, int k) {
+        int numFeatures = sample.length / 10;
+        float[] result = new float[k];
+        float[] centeredSample = new float[numFeatures];
+
+        // Center the sample by subtracting the mean
+        for (int j = 0; j < numFeatures; j++) {
+            centeredSample[j] = sample[j] - mean[j];
+        }
+
+        // Project the sample onto the top k eigenvectors
+        for (int j = 0; j < k; j++) {
+            for (int l = 0; l < numFeatures; l++) {
+                result[j] += centeredSample[l] * eigenvectors[j][l];
+            }
+        }
         return result;
     }
 }
