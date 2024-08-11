@@ -5,6 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PCA {
+    public static int FEATURES_DIVISOR = 10;
     public float[][] data;
     public float[] mean;
     public float[][] covarianceMatrix;
@@ -25,7 +26,7 @@ public class PCA {
     // Step 1: Calculate the mean of each feature
     private float[] calculateMean() {
         int numSamples = data.length;
-        int numFeatures = data[0].length / 10;
+        int numFeatures = data[0].length / FEATURES_DIVISOR;
         float[] mean = new float[numFeatures];
 
         for (float[] datum : data) {
@@ -44,7 +45,7 @@ public class PCA {
     // Step 2: Calculate the covariance matrix
     private void calculateCovarianceMatrix() {
         int numSamples = data.length;
-        int numFeatures = data[0].length / 10;
+        int numFeatures = data[0].length / FEATURES_DIVISOR;
         float[][] centeredData = new float[numSamples][numFeatures];
 
         // Center the data by subtracting the mean
@@ -160,7 +161,7 @@ public class PCA {
     public float[][] transform(int k) {
         System.out.println("Transforming");
         int numSamples = data.length;
-        int numFeatures = data[0].length / 10;
+        int numFeatures = data[0].length / FEATURES_DIVISOR;
         float[][] result = new float[numSamples][k];
         float[][] centeredData = new float[numSamples][numFeatures];
 
@@ -185,7 +186,7 @@ public class PCA {
     }
 
     public float[] transformSingleSample(float[] sample, int k) {
-        int numFeatures = sample.length / 10;
+        int numFeatures = sample.length / FEATURES_DIVISOR;
         float[] result = new float[k];
         float[] centeredSample = new float[numFeatures];
 

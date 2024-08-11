@@ -8,18 +8,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 public class UnlabeledDatasetND implements Dataset {
-    private final Map<Float[], Float[]> data = new HashMap<>();
-    public UnlabeledDatasetND(Float[][] input, Float[][] output) {
-        for (int i = 0; i < input.length; i++) {
-            getData().put(input[i], output[i]);
-        }
-    }
-
-    public UnlabeledDatasetND(float[][] input, float[][] output) {
-        for (int i = 0; i < input.length; i++) {
-            getData().put(ArrayUtils.toObject(input[i]), ArrayUtils.toObject(output[i]));
-        }
-    }
+    private final Map<Float[], Float> data = new HashMap<>();
 
     public UnlabeledDatasetND(Float[][] input) {
         for (Float[] floats : input) {
@@ -42,14 +31,14 @@ public class UnlabeledDatasetND implements Dataset {
 
     @Override
     public void iteratePoints(Predicate<NDimensionalPoint> consumer) {
-        for (Map.Entry<Float[], Float[]> entry : getData().entrySet()) {
+        for (Map.Entry<Float[], Float> entry : getData().entrySet()) {
 
             NDimensionalPoint point = new NDimensionalPoint(entry.getKey());
             if (!consumer.test(point)) break;
         }
     }
 
-    public Map<Float[], Float[]> getData() {
+    public Map<Float[], Float> getData() {
         return data;
     }
 }
