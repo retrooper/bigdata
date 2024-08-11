@@ -77,7 +77,7 @@ public class ImageClassificationWithKNNMain {
             System.out.println("Testing and evaluating the model with testing data.");
         int bestK = 2;
         int maxWrongCount = files.length;
-        for (int k = 2; k < 100; k++) {
+        for (int k = 2; k < 50; k++) {
             int finalK = k;
             Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier =
                     () -> KNearestNeighborsAlgorithm.build(finalK, function);
