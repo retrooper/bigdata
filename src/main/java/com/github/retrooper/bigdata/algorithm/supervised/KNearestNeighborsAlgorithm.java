@@ -30,16 +30,12 @@ public class KNearestNeighborsAlgorithm<Z extends NDimensionalPoint> implements 
     @Override
     public float predict(Z x) {
         points.sort((a, b) -> Float.compare(a.point.distance(x), b.point.distance(x)));
-        for (DataPoint p : points) {
-            System.out.println("Dist: " + p.point.distance(x));
-        }
 
         int freqA = 0;
         int freqB = 0;
         for (int i = 0; i < k; i++) {
             if (points.get(i).clusterValue == 0) {
                 freqA++;
-                System.out.println("erm");
             }
             else if (points.get(i).clusterValue == 1) {
                 freqB++;

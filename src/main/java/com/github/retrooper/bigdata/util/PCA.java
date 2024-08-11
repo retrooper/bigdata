@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PCA {
-    public static int FEATURES_DIVISOR = 10;
+    public static int FEATURES_DIVISOR = 8; //8
     public float[][] data;
     public float[] mean;
     public float[][] covarianceMatrix;
@@ -99,7 +99,7 @@ public class PCA {
             }
         }
 
-        System.out.println("Calculate eigen");
+        System.out.println("Sort eigen");
         // Sort eigenvalues and corresponding eigenvectors in descending order
         sortEigen();
     }
