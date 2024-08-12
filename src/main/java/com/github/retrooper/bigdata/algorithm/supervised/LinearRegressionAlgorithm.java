@@ -10,7 +10,7 @@ public class LinearRegressionAlgorithm implements LearningAlgorithm<Float> {
     private final float gradient;
     private final float height;
 
-    private LinearRegressionAlgorithm(float r, float gradient, float height) {
+    protected LinearRegressionAlgorithm(float r, float gradient, float height) {
         this.r = r;
         this.gradient = gradient;
         this.height = height;

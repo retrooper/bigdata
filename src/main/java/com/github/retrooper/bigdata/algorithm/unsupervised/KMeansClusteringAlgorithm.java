@@ -13,7 +13,7 @@ public class KMeansClusteringAlgorithm<Z extends NDimensionalPoint> implements L
     private final int k;
     private final List<Cluster> clusters;
 
-    private KMeansClusteringAlgorithm(int k, List<Cluster> clusters) {
+    protected KMeansClusteringAlgorithm(int k, List<Cluster> clusters) {
         this.k = k;
         this.clusters = clusters;
     }

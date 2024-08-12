@@ -2,7 +2,7 @@ package com.github.retrooper.bigdata;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.supervised.KNearestNeighborsAlgorithm;
-import com.github.retrooper.bigdata.dataset.LabeledDatasetND;
+import com.github.retrooper.bigdata.dataset.SimpleLabeledDatasetND;
 import com.github.retrooper.bigdata.image.Image;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
@@ -18,7 +18,7 @@ public class ImageClassificationWithKNNMain {
     public static int DATA_HEIGHT = 128;
     public static void main(String[] args) {
         PCA pca = training(true);
-        LabeledDatasetND function = new LabeledDatasetND(pca.transform(2), pca.labels);
+        SimpleLabeledDatasetND function = new SimpleLabeledDatasetND(pca.transform(2), pca.labels);
         //int bestK = testing(pca, function, false);
         int bestK = 19;
         int[] predictions = prediction(pca, bestK, function, true);
@@ -66,7 +66,7 @@ public class ImageClassificationWithKNNMain {
         return pca;
     }
 
-    public static int testing(PCA pca, LabeledDatasetND function, boolean debug) {
+    public static int testing(PCA pca, SimpleLabeledDatasetND function, boolean debug) {
         //Test with random image: in testing
         File testingDataDir = new File("src/main/resources/testing");
         File[] files = testingDataDir.listFiles();
@@ -122,7 +122,7 @@ public class ImageClassificationWithKNNMain {
         return bestK;
     }
 
-    public static int[] prediction(PCA pca, int k, LabeledDatasetND function, boolean debug) {
+    public static int[] prediction(PCA pca, int k, SimpleLabeledDatasetND function, boolean debug) {
         //Predict labels for images in prediction folder
         File predictionFilesDir = new File("src/main/resources/prediction");
         File[] files = predictionFilesDir.listFiles();

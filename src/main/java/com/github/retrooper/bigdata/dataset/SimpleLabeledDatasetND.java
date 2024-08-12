@@ -8,17 +8,17 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
-public class LabeledDatasetND implements Dataset {
-    private final Map<Float[], Float[]> data = new HashMap<>();
-    public LabeledDatasetND(Float[][] input, Float[][] output) {
+public class SimpleLabeledDatasetND implements Dataset {
+    private final Map<Float[], Integer> data = new HashMap<>();
+    public SimpleLabeledDatasetND(Float[][] input, Integer[] output) {
         for (int i = 0; i < input.length; i++) {
             getData().put(input[i], output[i]);
         }
     }
 
-    public LabeledDatasetND(float[][] input, float[][] output) {
+    public SimpleLabeledDatasetND(float[][] input, int[] output) {
         for (int i = 0; i < input.length; i++) {
-            getData().put(ArrayUtils.toObject(input[i]), ArrayUtils.toObject(output[i]));
+            getData().put(ArrayUtils.toObject(input[i]), output[i]);
         }
     }
 
@@ -30,15 +30,22 @@ public class LabeledDatasetND implements Dataset {
 
     @Override
     public void iteratePoints(Predicate<NDimensionalPoint> consumer) {
-        for (Map.Entry<Float[], Float[]> entry : getData().entrySet()) {
+        for (Map.Entry<Float[], Integer> entry : getData().entrySet()) {
 
             NDimensionalPoint point = new NDimensionalPoint(entry.getKey());
             if (!consumer.test(point)) break;
         }
     }
 
+    public void iterate(BiFunction<NDimensionalPoint, Integer, Boolean> function) {
+        for (Map.Entry<Float[], Integer> entry : getData().entrySet()) {
 
-    public Map<Float[], Float[]> getData() {
+            NDimensionalPoint point = new NDimensionalPoint(entry.getKey());
+            if (!function.apply(point, entry.getValue())) break;
+        }
+    }
+
+    public Map<Float[], Integer> getData() {
         return data;
     }
 }

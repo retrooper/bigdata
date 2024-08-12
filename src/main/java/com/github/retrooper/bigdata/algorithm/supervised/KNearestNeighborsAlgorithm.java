@@ -1,24 +1,22 @@
 package com.github.retrooper.bigdata.algorithm.supervised;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
-import com.github.retrooper.bigdata.dataset.LabeledDatasetND;
+import com.github.retrooper.bigdata.dataset.SimpleLabeledDatasetND;
 import com.github.retrooper.bigdata.util.NDimensionalPoint;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class KNearestNeighborsAlgorithm<Z extends NDimensionalPoint> implements LearningAlgorithm<Z> {
     private final int k;
     private final List<DataPoint> points;
-    public KNearestNeighborsAlgorithm(int k, List<DataPoint> points) {
+
+    protected KNearestNeighborsAlgorithm(int k, List<DataPoint> points) {
         this.k = k;
         this.points = points;
 
     }
 
-    public static KNearestNeighborsAlgorithm<NDimensionalPoint> build(int k, LabeledDatasetND function) {
+    public static KNearestNeighborsAlgorithm<NDimensionalPoint> build(int k, SimpleLabeledDatasetND function) {
         List<DataPoint> points = new ArrayList<>();
         function.iterate((point, value) -> {
             points.add(new DataPoint(point, value));
