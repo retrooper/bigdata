@@ -20,23 +20,26 @@ public class ImageClassificationWithKNNMain {
     public static int DATA_WIDTH = 128;
     public static int DATA_HEIGHT = 128;
     public static void main(String[] args) {
-        LDA lda = training(true);
-        SimpleLabeledDatasetND function = new SimpleLabeledDatasetND(lda.transform(lda.data), lda.labels);
+        LDA lda = training(3, true);
+        SimpleLabeledDatasetND function = new SimpleLabeledDatasetND(lda.transform(lda.totalData), lda.totalLabels);
         //int bestK = testing(pca, function, true);
         int bestK = 3;
         int[] predictions = prediction(lda, bestK, function, true);
         //19 works best
     }
 
-    public static LDA training(boolean debug) {
+    public static LDA training(int batchSize, boolean debug) {
         File trainingDataDir = new File("src/main/resources/training");
         File[] files = trainingDataDir.listFiles();
         if (files == null) throw new IllegalStateException("Failed to find training data");
 
-        LDA lda = new LDA(1);
-        lda.data = new float[files.length][];
-        lda.labels = new int[files.length];
+        LDA lda = new LDA(1, 50);
         Size imageSize = new Size(DATA_WIDTH, DATA_HEIGHT);
+        lda.totalData = new float[files.length][];
+        lda.totalLabels = new int[files.length];
+
+        float[][] batchData = new float[batchSize][];
+        int[] labels = new int[batchSize];
         for (int i = 0; i < files.length; i++) {
             File trainingImageFile = files[i];
             Image trainingImage = new Image(trainingImageFile.getPath());
@@ -54,22 +57,33 @@ public class ImageClassificationWithKNNMain {
                 System.out.println("Successfully resized all images to 64x64. Please run the program again!");
                 System.exit(0);
             }
-            lda.data[i] = trainingImage.features().get().getData();
+
+            //Finished with previous batch
+            if (i % batchSize == 0 && batchData[i % 3] != null) {
+                //Process batch
+                System.out.println("Data piece size: " + batchData[0].length);
+                lda.partialFit(batchData, labels);
+                batchData = new float[batchSize][];
+                labels = new int[batchSize];
+            }
+            batchData[i % batchSize] = trainingImage.features().get().getData();
+            lda.totalData[i] = trainingImage.features().get().getData();
 
 
             // Label the data
             String imageName = trainingImage.path().toLowerCase();
             if (imageName.contains("one")) {
                 //Number 1
-                lda.labels[i] = 0;
+                labels[i % batchSize] = 0;
+                lda.totalLabels[i] = 0;
             } else {
                 //Number 9
-                lda.labels[i] = 1;
+                labels[i % batchSize] = 1;
+                lda.totalLabels[i] = 1;
             }
         }
 
-        System.out.println("Applying dimension reduction to the data...");
-        lda.fit(lda.data, lda.labels);
+        lda.finalizeModel();
         if (debug)
             System.out.println("Successfully processed all image data!");
         return lda;

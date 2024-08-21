@@ -4,99 +4,113 @@ import com.github.retrooper.bigdata.util.ArrayConversions;
 import org.apache.commons.math3.linear.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 public class LDA {
-    public float[][] data;
-    public int[] labels;
+    public float[][] totalData;
+    public int[] totalLabels;
     private int nComponents;
     private RealMatrix eigenVectors;
+    private RealMatrix totalMean;
+    private RealMatrix Sw;
+    private RealMatrix Sb;
+    private Map<Integer, RealMatrix> classMeans;
+    private Map<Integer, Integer> classCounts;
+    private int nFeatures;
+    private int totalSamples;
 
-    public LDA(int nComponents) {
+    public LDA(int nComponents, int nFeatures) {
         this.nComponents = nComponents;
+        this.nFeatures = nFeatures;
+        this.Sw = new Array2DRowRealMatrix(nFeatures, nFeatures);
+        this.Sb = new Array2DRowRealMatrix(nFeatures, nFeatures);
+        this.classMeans = new HashMap<>();
+        this.classCounts = new HashMap<>();
+        this.totalMean = new Array2DRowRealMatrix(nFeatures, 1);
+        this.totalSamples = 0;
     }
 
-    public void fit(float[][] X, int[] y) {
-        int nFeatures = X[0].length;
-        int nClasses = (int) Arrays.stream(y).distinct().count();
+    public void partialFit(float[][] X, int[] y) {
+        int batchSize = X.length;
 
-        float[] meanTotal = calculateMean(X);
-        float[][] meanClasses = new float[nClasses][nFeatures];
-        int[] classCounts = new int[nClasses];
+        // Initialize batch statistics
+        Map<Integer, RealMatrix> batchClassMeans = new HashMap<>();
+        Map<Integer, Integer> batchClassCounts = new HashMap<>();
 
-        // Calculate class means and counts
-        for (int i = 0; i < y.length; i++) {
+        // Accumulate sums for each class
+        for (int i = 0; i < batchSize; i++) {
             int label = y[i];
-            classCounts[label]++;
-            for (int j = 0; j < nFeatures; j++) {
-                meanClasses[label][j] += X[i][j];
+            RealMatrix xi = new Array2DRowRealMatrix(new double[][]{ArrayConversions.convertFToD(X[i])}).transpose();
+
+            batchClassMeans.putIfAbsent(label, new Array2DRowRealMatrix(nFeatures, 1));
+            batchClassCounts.putIfAbsent(label, 0);
+
+            RealMatrix currentBatchMean = batchClassMeans.get(label);
+            RealMatrix updatedBatchMean = currentBatchMean.add(xi);
+            batchClassMeans.put(label, updatedBatchMean);
+            batchClassCounts.put(label, batchClassCounts.get(label) + 1);
+        }
+
+        // Update class means and scatter matrices
+        for (Map.Entry<Integer, RealMatrix> entry : batchClassMeans.entrySet()) {
+            int label = entry.getKey();
+            RealMatrix batchMean = entry.getValue().scalarMultiply(1.0 / batchClassCounts.get(label));
+            RealMatrix oldMean = classMeans.getOrDefault(label, new Array2DRowRealMatrix(nFeatures, 1));
+            int oldCount = classCounts.getOrDefault(label, 0);
+            int newCount = oldCount + batchClassCounts.get(label);
+
+            // Update class mean
+            RealMatrix newMean = oldMean.scalarMultiply(oldCount).add(batchMean.scalarMultiply(batchClassCounts.get(label))).scalarMultiply(1.0 / newCount);
+            classMeans.put(label, newMean);
+            classCounts.put(label, newCount);
+
+            // Update within-class scatter (Sw)
+            for (int i = 0; i < X.length; i++) {
+                if (y[i] == label) {
+                    RealMatrix xi = new Array2DRowRealMatrix(new double[][]{ArrayConversions.convertFToD(X[i])}).transpose();
+                    RealMatrix diff = xi.subtract(newMean);
+                    Sw = Sw.add(diff.multiply(diff.transpose()));
+                }
             }
+
+            // Update global mean
+            RealMatrix classMeanSum = totalMean.scalarMultiply(totalSamples).add(batchMean.scalarMultiply(batchClassCounts.get(label)));
+            totalMean = classMeanSum.scalarMultiply(1.0 / (totalSamples + batchSize));
+
+            // Update between-class scatter (Sb)
+            RealMatrix meanDiff = newMean.subtract(totalMean);
+            Sb = Sb.add(meanDiff.multiply(meanDiff.transpose()).scalarMultiply(classCounts.get(label)));
         }
 
-        for (int label = 0; label < nClasses; label++) {
-            for (int j = 0; j < nFeatures; j++) {
-                meanClasses[label][j] /= classCounts[label];
-            }
-        }
+        totalSamples += batchSize;
+    }
 
-        // Calculate scatter within (Sw) and scatter between (Sb) matrices
-        RealMatrix scatterWithin = new Array2DRowRealMatrix(nFeatures, nFeatures);
-        RealMatrix scatterBetween = new Array2DRowRealMatrix(nFeatures, nFeatures);
+    public void finalizeModel() {
+        RealMatrix scatterWithinInv = new LUDecomposition(Sw).getSolver().getInverse();
+        RealMatrix swsb = scatterWithinInv.multiply(Sb);
 
-        for (int i = 0; i < X.length; i++) {
-            int label = y[i];
-            RealMatrix xi = new Array2DRowRealMatrix(new double[][]{ ArrayConversions.convertFToD(X[i]) }).transpose();
-            RealMatrix meanClass = new Array2DRowRealMatrix(new double[][]{ArrayConversions.convertFToD(meanClasses[label])}).transpose();
-            RealMatrix diff = xi.subtract(meanClass);
-            scatterWithin = scatterWithin.add(diff.multiply(diff.transpose()));
-        }
-
-        for (int label = 0; label < nClasses; label++) {
-            RealMatrix meanClass = new Array2DRowRealMatrix(new double[][]{ArrayConversions.convertFToD(meanClasses[label])}).transpose();
-            RealMatrix meanDiff = meanClass.subtract(new Array2DRowRealMatrix(new double[][]{ArrayConversions.convertFToD(meanTotal)}).transpose());
-            scatterBetween = scatterBetween.add(meanDiff.multiply(meanDiff.transpose()).scalarMultiply(classCounts[label]));
-        }
-
-        // Compute the generalized eigenvalue problem for inv(Sw) * Sb
-        RealMatrix scatterWithinInv = new LUDecomposition(scatterWithin).getSolver().getInverse();
-        RealMatrix swsb = scatterWithinInv.multiply(scatterBetween);
-
-        // Eigen decomposition
         EigenDecomposition eigenDecomposition = new EigenDecomposition(swsb);
-        float[][] eigenVectorsMatrix = new float[nFeatures][nComponents];
+        double[][] eigenVectorsMatrix = new double[nFeatures][nComponents];
 
         for (int i = 0; i < nComponents; i++) {
-            eigenVectorsMatrix[i] = ArrayConversions.convertDToF(eigenDecomposition.getEigenvector(i).toArray());
+            eigenVectorsMatrix[i] = eigenDecomposition.getEigenvector(i).toArray();
         }
 
-        this.eigenVectors = new Array2DRowRealMatrix(ArrayConversions.convertTwoFTwoD(eigenVectorsMatrix)).transpose();
+        this.eigenVectors = new Array2DRowRealMatrix(eigenVectorsMatrix).transpose();
     }
 
     public float[][] transform(float[][] X) {
         RealMatrix dataMatrix = new Array2DRowRealMatrix(ArrayConversions.convertTwoFTwoD(X));
         RealMatrix projectedData = dataMatrix.multiply(eigenVectors);
-        double[][] data = projectedData.getData();
-        return ArrayConversions.convertTwoDTwoF(data);
+        return ArrayConversions.convertTwoDTwoF(projectedData.getData());
     }
 
     public float[] transformSingle(float[] x) {
-        RealMatrix dataMatrix = new Array2DRowRealMatrix(new double[][] {ArrayConversions.convertFToD(x)});
+        RealMatrix dataMatrix = new Array2DRowRealMatrix(new double[][]{ArrayConversions.convertFToD(x)});
         RealMatrix projectedData = dataMatrix.multiply(eigenVectors);
         return ArrayConversions.convertDToF(projectedData.getRow(0));
-    }
-
-    private float[] calculateMean(float[][] X) {
-        int nFeatures = X[0].length;
-        float[] mean = new float[nFeatures];
-        for (float[] xi : X) {
-            for (int j = 0; j < nFeatures; j++) {
-                mean[j] += xi[j];
-            }
-        }
-        for (int j = 0; j < nFeatures; j++) {
-            mean[j] /= X.length;
-        }
-        return mean;
     }
 }
 
