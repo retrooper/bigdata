@@ -53,4 +53,3 @@ public class MultiLinearRegressionAlgorithm implements LearningAlgorithm<Float[]
 
     }
 }
-}

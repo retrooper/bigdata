@@ -8,6 +8,7 @@ import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
 import com.github.retrooper.bigdata.util.NDimensionalPoint;
 import com.github.retrooper.bigdata.util.PCA;
+import org.apache.commons.lang3.SystemUtils;
 import org.opencv.core.Size;
 
 import java.io.File;
@@ -17,10 +18,12 @@ public class ImageClassificationWithKNNMain {
     public static int DATA_WIDTH = 128;
     public static int DATA_HEIGHT = 128;
     public static void main(String[] args) {
+        System.out.println("Is windows: " + SystemUtils.IS_OS_WINDOWS + ", is linux: " + SystemUtils.IS_OS_LINUX);
+        System.out.println("Architecture: " + System.getProperty("os.arch"));
         PCA pca = training(true);
         SimpleLabeledDatasetND function = new SimpleLabeledDatasetND(pca.transform(2), pca.labels);
-        //int bestK = testing(pca, function, false);
-        int bestK = 19;
+        int bestK = testing(pca, function, true);
+        //int bestK = 19;
         int[] predictions = prediction(pca, bestK, function, true);
         //19 works best
     }
@@ -54,9 +57,11 @@ public class ImageClassificationWithKNNMain {
 
             // Label the data
             String imageName = trainingImage.path().toLowerCase();
-            if (imageName.contains("dog")) {
+            if (imageName.contains("one")) {
+                //Number 1
                 pca.labels[i] = 0;
             } else {
+                //Number 9
                 pca.labels[i] = 1;
             }
         }
@@ -77,7 +82,7 @@ public class ImageClassificationWithKNNMain {
             System.out.println("Testing and evaluating the model with testing data.");
         int bestK = 2;
         int maxWrongCount = files.length;
-        for (int k = 2; k < 50; k++) {
+        for (int k = 2; k < 17; k++) {
             int finalK = k;
             Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier =
                     () -> KNearestNeighborsAlgorithm.build(finalK, function);
@@ -90,8 +95,8 @@ public class ImageClassificationWithKNNMain {
                 float[] data = test.features().get().getData();
                 NDimensionalPoint point = new NDimensionalPoint(pca.transformSingleSample(data, 2));
                 float value = trainedModel.predict(point);
-                if (value != 0 && test.path().contains("dog")
-                        || value != 1 && test.path().contains("cat")) {
+                if (value != 0 && test.path().contains("one")
+                        || value != 1 && test.path().contains("nine")) {
                     wrongCount++;
                 }
             }
@@ -116,7 +121,7 @@ public class ImageClassificationWithKNNMain {
             NDimensionalPoint point = new NDimensionalPoint(pca.transformSingleSample(data, 2));
             float value = trainedModel.predict(point);
             if (debug)
-                System.out.println("image name: " + test.path() + ", cluster: " + (value == 0 ? "dog" : "cat"));
+                System.out.println("image name: " + test.path() + ", cluster: " + (value == 0 ? "number one" : "number nine"));
         }
 
         return bestK;
@@ -143,7 +148,7 @@ public class ImageClassificationWithKNNMain {
             float value = trainedModel.predict(point);
             output[i] = (int) value;
             if (debug)
-                System.out.println("Prediction of Image: " + test.path() + ", Label: " + (value == 0 ? "dog" : "cat"));
+                System.out.println("Prediction of Image: " + test.path() + ", Label: " + (value == 0 ? "number one" : "number nine"));
         }
         return output;
     }

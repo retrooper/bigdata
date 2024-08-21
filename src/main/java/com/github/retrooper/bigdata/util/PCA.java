@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class PCA {
     //Feature reducer (for performance reasons)
-    public static int FEATURES_DIVISOR = 7; //8
+    public static int FEATURES_DIVISOR = 1; //8
 
     // Data
     public float[][] data;
