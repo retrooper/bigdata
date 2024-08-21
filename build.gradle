@@ -19,6 +19,8 @@ dependencies {
     implementation('opencv-custom:opencv-custom')
     implementation 'org.apache.commons:commons-math3:3.6.1'
     implementation 'org.apache.commons:commons-lang3:3.16.0'
+    implementation group: 'org.deeplearning4j', name: 'deeplearning4j-core', version: '1.0.0-M2.1'
+    implementation('org.nd4j:nd4j-native-platform:1.0.0-M2.1')
     implementation("org.jetbrains:annotations:24.0.0")
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
