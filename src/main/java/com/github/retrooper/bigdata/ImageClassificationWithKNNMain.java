@@ -3,38 +3,39 @@ package com.github.retrooper.bigdata;
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
 import com.github.retrooper.bigdata.algorithm.supervised.KNearestNeighborsAlgorithm;
 import com.github.retrooper.bigdata.dataset.SimpleLabeledDatasetND;
+import com.github.retrooper.bigdata.dimensionreduction.LDA;
 import com.github.retrooper.bigdata.image.Image;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
+import com.github.retrooper.bigdata.util.ArrayConversions;
 import com.github.retrooper.bigdata.util.NDimensionalPoint;
-import com.github.retrooper.bigdata.util.PCA;
-import org.apache.commons.lang3.SystemUtils;
+import com.github.retrooper.bigdata.dimensionreduction.PCA;
 import org.opencv.core.Size;
 
 import java.io.File;
 import java.util.function.Supplier;
+import java.util.stream.IntStream;
 
 public class ImageClassificationWithKNNMain {
     public static int DATA_WIDTH = 128;
     public static int DATA_HEIGHT = 128;
     public static void main(String[] args) {
-        System.out.println("Is windows: " + SystemUtils.IS_OS_WINDOWS + ", is linux: " + SystemUtils.IS_OS_LINUX);
-        System.out.println("Architecture: " + System.getProperty("os.arch"));
-        PCA pca = training(true);
-        SimpleLabeledDatasetND function = new SimpleLabeledDatasetND(pca.transform(2), pca.labels);
-        int bestK = testing(pca, function, true);
-        //int bestK = 19;
-        int[] predictions = prediction(pca, bestK, function, true);
+        LDA lda = training(true);
+        SimpleLabeledDatasetND function = new SimpleLabeledDatasetND(lda.transform(lda.data), lda.labels);
+        //int bestK = testing(pca, function, true);
+        int bestK = 3;
+        int[] predictions = prediction(lda, bestK, function, true);
         //19 works best
     }
 
-    public static PCA training(boolean debug) {
+    public static LDA training(boolean debug) {
         File trainingDataDir = new File("src/main/resources/training");
         File[] files = trainingDataDir.listFiles();
         if (files == null) throw new IllegalStateException("Failed to find training data");
-        PCA pca = new PCA(5);//was 1000!
-        pca.data = new float[files.length][];
-        pca.labels = new int[files.length];
+
+        LDA lda = new LDA(1);
+        lda.data = new float[files.length][];
+        lda.labels = new int[files.length];
         Size imageSize = new Size(DATA_WIDTH, DATA_HEIGHT);
         for (int i = 0; i < files.length; i++) {
             File trainingImageFile = files[i];
@@ -53,25 +54,28 @@ public class ImageClassificationWithKNNMain {
                 System.out.println("Successfully resized all images to 64x64. Please run the program again!");
                 System.exit(0);
             }
-            pca.data[i] = trainingImage.features().get().getData();
+            lda.data[i] = trainingImage.features().get().getData();
+
 
             // Label the data
             String imageName = trainingImage.path().toLowerCase();
             if (imageName.contains("one")) {
                 //Number 1
-                pca.labels[i] = 0;
+                lda.labels[i] = 0;
             } else {
                 //Number 9
-                pca.labels[i] = 1;
+                lda.labels[i] = 1;
             }
         }
-        pca.init();
+
+        System.out.println("Applying dimension reduction to the data...");
+        lda.fit(lda.data, lda.labels);
         if (debug)
             System.out.println("Successfully processed all image data!");
-        return pca;
+        return lda;
     }
 
-    public static int testing(PCA pca, SimpleLabeledDatasetND function, boolean debug) {
+    public static int testing(LDA pca, SimpleLabeledDatasetND function, boolean debug) {
         //Test with random image: in testing
         File testingDataDir = new File("src/main/resources/testing");
         File[] files = testingDataDir.listFiles();
@@ -93,7 +97,7 @@ public class ImageClassificationWithKNNMain {
             for (File testingImageFile : files) {
                 Image test = new Image(testingImageFile.getPath());
                 float[] data = test.features().get().getData();
-                NDimensionalPoint point = new NDimensionalPoint(pca.transformSingleSample(data, 2));
+                NDimensionalPoint point = new NDimensionalPoint(pca.transformSingle(data));
                 float value = trainedModel.predict(point);
                 if (value != 0 && test.path().contains("one")
                         || value != 1 && test.path().contains("nine")) {
@@ -118,7 +122,7 @@ public class ImageClassificationWithKNNMain {
         for (File testingImageFile : files) {
             Image test = new Image(testingImageFile.getPath());
             float[] data = test.features().get().getData();
-            NDimensionalPoint point = new NDimensionalPoint(pca.transformSingleSample(data, 2));
+            NDimensionalPoint point = new NDimensionalPoint(pca.transformSingle(data));
             float value = trainedModel.predict(point);
             if (debug)
                 System.out.println("image name: " + test.path() + ", cluster: " + (value == 0 ? "number one" : "number nine"));
@@ -127,7 +131,7 @@ public class ImageClassificationWithKNNMain {
         return bestK;
     }
 
-    public static int[] prediction(PCA pca, int k, SimpleLabeledDatasetND function, boolean debug) {
+    public static int[] prediction(LDA lda, int k, SimpleLabeledDatasetND function, boolean debug) {
         //Predict labels for images in prediction folder
         File predictionFilesDir = new File("src/main/resources/prediction");
         File[] files = predictionFilesDir.listFiles();
@@ -144,7 +148,7 @@ public class ImageClassificationWithKNNMain {
             File newImageFile = files[i];
             Image test = new Image(newImageFile.getPath());
             float[] data = test.features().get().getData();
-            NDimensionalPoint point = new NDimensionalPoint(pca.transformSingleSample(data, 2));
+            NDimensionalPoint point = new NDimensionalPoint(lda.transformSingle(data));
             float value = trainedModel.predict(point);
             output[i] = (int) value;
             if (debug)

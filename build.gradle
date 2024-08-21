@@ -9,10 +9,15 @@ version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    flatDir {
+        dirs("lib")
+    }
+
 }
 
 dependencies {
-    implementation('io.github.kamilszewc:opencv:4.7.0-2')
+    implementation('opencv-custom:opencv-custom')
+    implementation 'org.apache.commons:commons-math3:3.6.1'
     implementation 'org.apache.commons:commons-lang3:3.16.0'
     implementation("org.jetbrains:annotations:24.0.0")
     testImplementation platform('org.junit:junit-bom:5.10.0')

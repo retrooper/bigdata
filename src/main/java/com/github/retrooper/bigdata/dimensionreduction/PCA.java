@@ -1,14 +1,10 @@
-package com.github.retrooper.bigdata.util;
+package com.github.retrooper.bigdata.dimensionreduction;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class PCA {
     //Feature reducer (for performance reasons)
-    public static int FEATURES_DIVISOR = 1; //8
+    public static int FEATURES_DIVISOR = 4; //8
 
     // Data
     public float[][] data;
@@ -88,28 +84,13 @@ public class PCA {
         eigenvalues = new float[numFeatures];
         eigenvectors = new float[numFeatures][numFeatures];
 
-        ExecutorService ex = Executors.newCachedThreadPool();
-        AtomicInteger atomicI = new AtomicInteger(0);
         for (int i = 0; i < numFeatures; i++) {
-            int finalI = i;
-            ex.execute(() ->{
-                float[] vector = new float[numFeatures];
-                vector[finalI] = 1.0f; // Start with a unit vector
-                eigenvalues[finalI] = powerIteration(covarianceMatrix, vector, maxIterations);
-                eigenvectors[finalI] = vector;
-                //System.out.println("i: " + (finalI + 1)+ "/" + numFeatures);
-                atomicI.incrementAndGet();
-            });
+            float[] vector = new float[numFeatures];
+            vector[i] = 1.0f; // Start with a unit vector
+            eigenvalues[i] = powerIteration(covarianceMatrix, vector, maxIterations);
+            eigenvectors[i] = vector;
+            //System.out.println("i: " + (finalI + 1)+ "/" + numFeatures);
 
-        }
-
-        while (atomicI.get() != numFeatures) {
-            System.out.println("Progress: " + atomicI.get() + "/" + numFeatures);
-            try {
-                Thread.sleep(1000L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }
 
         System.out.println("Sort eigen");

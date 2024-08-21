@@ -7,8 +7,7 @@ import com.github.retrooper.bigdata.image.Image;
 import com.github.retrooper.bigdata.model.ProductionModel;
 import com.github.retrooper.bigdata.model.TrainingModel;
 import com.github.retrooper.bigdata.util.NDimensionalPoint;
-import com.github.retrooper.bigdata.util.PCA;
-import org.apache.commons.lang3.ArrayUtils;
+import com.github.retrooper.bigdata.dimensionreduction.PCA;
 import org.opencv.core.Size;
 
 import java.io.File;

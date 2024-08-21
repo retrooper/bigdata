@@ -2,8 +2,9 @@ package com.github.retrooper.bigdata.image;
 
 import io.github.kamilszewc.opencv.OpenCV;
 import io.github.kamilszewc.opencv.exception.SystemNotSupportedException;
-import org.jetbrains.annotations.Nullable;
-import org.opencv.core.*;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.HOGDescriptor;
