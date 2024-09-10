@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class PCA {
     //Feature reducer (for performance reasons)
-    public static int FEATURES_DIVISOR = 4; //8
+    public static int FEATURES_DIVISOR = 16; //8
 
     // Data
     public float[][] data;

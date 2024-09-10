@@ -1,6 +1,7 @@
 package com.github.retrooper.bigdata;
 
 import com.github.retrooper.bigdata.algorithm.LearningAlgorithm;
+import com.github.retrooper.bigdata.algorithm.supervised.SoftmaxRegressionAlgorithm;
 import com.github.retrooper.bigdata.algorithm.unsupervised.KMeansClusteringAlgorithm;
 import com.github.retrooper.bigdata.dataset.UnlabeledDatasetND;
 import com.github.retrooper.bigdata.image.Image;
@@ -14,6 +15,8 @@ import java.io.File;
 import java.util.function.Supplier;
 
 public class ImageClassificationMain {
+    public static SoftmaxRegressionAlgorithm<NDimensionalPoint> SOFTMAX = new SoftmaxRegressionAlgorithm<>(2,
+            0.01F,1000);
     public static void main(String[] args) {
         File trainingDataDir = new File("src/main/resources/training");
         File[] files = trainingDataDir.listFiles();
@@ -21,6 +24,7 @@ public class ImageClassificationMain {
         PCA pca = new PCA(5);
         {
             pca.data = new float[files.length][];
+            pca.labels = new int[files.length];
             Size imageSize = new Size(128, 128);
             for (int i = 0; i < files.length; i++) {
                 File trainingImageFile = files[i];
@@ -40,27 +44,25 @@ public class ImageClassificationMain {
                     System.exit(0);
                 }
                 pca.data[i] = trainingImage.features().get().getData();
+                pca.labels[i] = trainingImage.path().contains("nine") ? 1 : 0;
             }
         }
         pca.init();
         System.out.println("Successfully read all image data!");
 
-        UnlabeledDatasetND function = new UnlabeledDatasetND(pca.transform(2));
-        Supplier<LearningAlgorithm<NDimensionalPoint>> dataSupplier =
-                () -> KMeansClusteringAlgorithm.build(2, function, 50);
-        TrainingModel<NDimensionalPoint> trainingModel = new TrainingModel<>();
-        ProductionModel<NDimensionalPoint> trainedModel = trainingModel.train(dataSupplier);
 
-        //Test with random image: in testing
-        File testingDataDir = new File("src/main/resources/testing");
+        SOFTMAX.fit(pca.transform(3), pca.labels);
+
+        //Test with random image: in prediction
+        File testingDataDir = new File("src/main/resources/prediction");
         files = testingDataDir.listFiles();
         if (files == null) throw new IllegalStateException("Failed to find training data");
 
         for (File testingImageFile : files) {
             Image test = new Image(testingImageFile.getPath());
             float[] data = test.features().get().getData();
-            NDimensionalPoint point = new NDimensionalPoint(pca.transformSingleSample(data, 2));
-            System.out.println("image name: " + test.path() + ", cluster: " + trainedModel.predict(point));
+            NDimensionalPoint point = new NDimensionalPoint(pca.transformSingleSample(data, 3));
+            System.out.println("image name: " + test.path() + ", cluster: " + SOFTMAX.predict(point));
         }
     }
 }
